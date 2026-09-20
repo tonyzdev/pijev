@@ -44,13 +44,13 @@ jobs:
         run: npm run build
       - name: Verify package installation
         env:
-          PIJ_HOME: ${{ runner.temp }}/pij-home
+          PIJEV_HOME: ${{ runner.temp }}/pijev-home
           PI_OFFLINE: '1'
           PI_TELEMETRY: '0'
         run: |
           npm pack --ignore-scripts --pack-destination "$RUNNER_TEMP"
-          npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/pij-install" "$RUNNER_TEMP/pij-agent-0.1.0.tgz"
+          npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/pijev-install" "$RUNNER_TEMP/pijev-0.1.0.tgz"
           cd "$RUNNER_TEMP"
-          ./pij-install/node_modules/.bin/pij --version
-          ./pij-install/node_modules/.bin/pij doctor --json
-          ./pij-install/node_modules/.bin/pij --pi-help > /dev/null
+          ./pijev-install/node_modules/.bin/pijev --version
+          ./pijev-install/node_modules/.bin/pijev doctor --json
+          ./pijev-install/node_modules/.bin/pijev --pi-help > /dev/null

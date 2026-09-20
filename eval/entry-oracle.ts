@@ -73,7 +73,7 @@ async function main() {
     return;
   }
   if (command !== "verify") throw new Error("Usage: entry-oracle.ts verify [finished-candidate]");
-  const temporary = await mkdtemp(join(tmpdir(), "pij-entry-oracle-validation-"));
+  const temporary = await mkdtemp(join(tmpdir(), "pijev-entry-oracle-validation-"));
   const checks: Record<string, unknown> = {};
   let matched = true;
   try {

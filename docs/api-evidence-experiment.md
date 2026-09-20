@@ -18,10 +18,10 @@ motivated by the previous traces. The task baseline remains public revision
 `4e1cdefd9144beb6bb43d3f0ed7189b0609c4254`, with Pi SDK 0.85.1. Neither the
 reference implementation nor holdout files are supplied to generation.
 
-Both conditions use actual `bin/pij.mjs`, Sonnet 4.6, medium thinking, 64 admitted
+Both conditions use actual `bin/pijev.mjs`, Sonnet 4.6, medium thinking, 64 admitted
 requests, 2.5 million reported tokens, 16,384 output tokens per request, and a
 600-second agent limit. A response can overshoot the token admission limit.
-Ordinary PiJ decisions, source briefing and automatic checkpoints are off.
+Ordinary PiJev decisions, source briefing and automatic checkpoints are off.
 The only treatment difference is ranking a common, deterministic API pool:
 BM25 plus symbol overlap for lexical; one Jev batched relevance evaluation for
 Jev. Both deliver six API units in the same format, with identical inventory,
@@ -125,7 +125,7 @@ Reported main tokens including cache are 561,146 / 1,072,971 in pair one and
   tree restoration, which those four tests do not exercise.
 - **Lexical 2:** adds five tests, including useful assertions about exact
   appended metadata and repeated writes. Its malformed-record test is vacuous:
-  it issues `/pij observe` and reads status without injecting malformed data
+  it issues `/pijev observe` and reads status without injecting malformed data
   or restoring the session. Its final answer falsely claims that coverage.
   The newest-wins test checks live command state, not restoration precedence.
   Required artifacts are present, with these review findings retained. The

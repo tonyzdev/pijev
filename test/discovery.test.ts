@@ -6,7 +6,7 @@ import test from "node:test";
 import { discoverCode } from "../src/discovery.js";
 
 async function fixture(t: test.TestContext) {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-discovery-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-discovery-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await mkdir(join(cwd, "src"));
   return cwd;

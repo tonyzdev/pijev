@@ -17,7 +17,7 @@ const exec = promisify(execFile);
 const defaults: EvalBudgets = { turns: 2, seconds: 10, tokens: 100000, maxOutputTokens: 16384 };
 
 async function fixture(t: test.TestContext, limits: Partial<EvalBudgets> = {}, options: { cli?: boolean; final?: boolean; truncated?: boolean } = {}) {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-budget-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-budget-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await writeFile(join(cwd, "fixture.txt"), "fixture\n");
   let calls = 0;
@@ -50,9 +50,9 @@ async function fixture(t: test.TestContext, limits: Partial<EvalBudgets> = {}, o
   let budget!: ReturnType<typeof installEvalBudget>;
   let control: ExtensionFactory = (pi) => { budget = installEvalBudget(pi, { ...defaults, ...limits }); };
   if (options.cli) {
-    const protectedHome = await mkdtemp(join(tmpdir(), "pij-budget-protected-"));
+    const protectedHome = await mkdtemp(join(tmpdir(), "pijev-budget-protected-"));
     t.after(() => rm(protectedHome, { recursive: true, force: true }));
-    const env = { PIJ_EVAL_WORKSPACE: cwd, PIJ_EVAL_PROTECTED_HOME: protectedHome, PIJ_EVAL_STATS: join(cwd, "stats.json"), PIJ_EVAL_TURNS: "2", PIJ_EVAL_TOKENS: "100000", PIJ_EVAL_MAX_OUTPUT_TOKENS: "16384" };
+    const env = { PIJEV_EVAL_WORKSPACE: cwd, PIJEV_EVAL_PROTECTED_HOME: protectedHome, PIJEV_EVAL_STATS: join(cwd, "stats.json"), PIJEV_EVAL_TURNS: "2", PIJEV_EVAL_TOKENS: "100000", PIJEV_EVAL_MAX_OUTPUT_TOKENS: "16384" };
     const previous = Object.fromEntries(Object.keys(env).map((key) => [key, process.env[key]]));
     Object.assign(process.env, env);
     t.after(() => { for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } });
@@ -115,11 +115,11 @@ test("dogfood rejects invalid budgets before requesting credentials or preparing
 });
 
 test("provenance distinguishes tracked, untracked, and built code without scanning private artifacts", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-provenance-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-provenance-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await mkdir(join(cwd, "src"));
   await mkdir(join(cwd, "dist"));
-  await writeFile(join(cwd, ".gitignore"), "dist/\n.env\n.pij/\n");
+  await writeFile(join(cwd, ".gitignore"), "dist/\n.env\n.pijev/\n");
   await writeFile(join(cwd, "src/a.ts"), "export const a = 1;\n");
   await exec("git", ["init", "-q"], { cwd });
   await exec("git", ["add", ".gitignore", "src/a.ts"], { cwd });
@@ -146,7 +146,7 @@ test("provenance distinguishes tracked, untracked, and built code without scanni
 });
 
 test("SIGTERM preserves an incremental redacted trace and lets actual Pi run cleanup", { timeout: 10000 }, async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-interrupt-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-interrupt-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   let entered!: () => void;
   const waiting = new Promise<void>((resolve) => { entered = resolve; });

@@ -1,8 +1,8 @@
-# Real PiJ decision-attribution checkpoint task
+# Real PiJev decision-attribution checkpoint task
 
 This is one bounded regression task for comparing test-selection policies. It is
 not evidence that a selector improves coding performance. The agent starts with
-a genuine previous PiJ-generated partial patch on public commit
+a genuine previous PiJev-generated partial patch on public commit
 `4e1cdefd9144beb6bb43d3f0ed7189b0609c4254`. The original 40 tests pass, while a
 real Pi SDK steering reproduction fails.
 
@@ -35,21 +35,21 @@ visible test, and `TASK.md`.
 
 ## Local execution
 
-From the PiJ repository root with its locked dependencies installed:
+From the PiJev repository root with its locked dependencies installed:
 
 ```sh
 # Reproduce the complete seed/reference red-green matrix.
 node --import tsx eval/checkpoint-fixture/verify.ts verify
 
 # Prepare an empty destination for an experimental candidate.
-node --import tsx eval/checkpoint-fixture/verify.ts prepare /tmp/pij-checkpoint-candidate
+node --import tsx eval/checkpoint-fixture/verify.ts prepare /tmp/pijev-checkpoint-candidate
 
 # Ordinary public reproduction, from that candidate.
-cd /tmp/pij-checkpoint-candidate
+cd /tmp/pijev-checkpoint-candidate
 node --import tsx --test test/decision-regression.test.ts
 
-# Run independent acceptance after the model has stopped, from the PiJ root.
-node --import tsx eval/checkpoint-fixture/verify.ts accept /tmp/pij-checkpoint-candidate
+# Run independent acceptance after the model has stopped, from the PiJev root.
+node --import tsx eval/checkpoint-fixture/verify.ts accept /tmp/pijev-checkpoint-candidate
 ```
 
 `prepare` requires a nonexistent destination. To validate the reference manually,

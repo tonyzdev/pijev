@@ -1,7 +1,7 @@
 Fix decision attribution across real Pi user-message lifecycles.
 
 The current partial implementation adds `sessionId` and `turnId` to the local
-Jev decision journal and renders them in `/pij decisions`. Ordinary tests pass,
+Jev decision journal and renders them in `/pijev decisions`. Ordinary tests pass,
 but `test/decision-regression.test.ts` reproduces an attribution error: a
 steering message consumed during one agent run gets the same turn identity as
 the preceding user message, including on a cached decision.

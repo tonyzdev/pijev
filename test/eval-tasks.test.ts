@@ -23,7 +23,7 @@ test("two independent repair tasks expose only their public project", async (t) 
   assert.equal(TASKS.length, 2);
   assert.equal(new Set(TASKS.map((task) => task.id)).size, 2);
   for (const task of TASKS) {
-    const cwd = await mkdtemp(join(tmpdir(), "pij-task-layout-"));
+    const cwd = await mkdtemp(join(tmpdir(), "pijev-task-layout-"));
     t.after(() => rm(cwd, { recursive: true, force: true }));
     await task.setup(cwd);
     const paths = await files(cwd);
@@ -39,7 +39,7 @@ test("two independent repair tasks expose only their public project", async (t) 
 
 test("originals pass visible smoke but fail independent behavioral acceptance", { timeout: 20000 }, async (t) => {
   for (const task of TASKS) {
-    const cwd = await mkdtemp(join(tmpdir(), "pij-task-original-"));
+    const cwd = await mkdtemp(join(tmpdir(), "pijev-task-original-"));
     t.after(() => rm(cwd, { recursive: true, force: true }));
     await task.setup(cwd);
     await exec(process.execPath, ["--test", "test/smoke.test.js"], { cwd, timeout: 3000 });
@@ -54,7 +54,7 @@ test("originals pass visible smoke but fail independent behavioral acceptance", 
 
 test("independent reference repairs pass the same oracle and visible tests", { timeout: 20000 }, async (t) => {
   for (const task of TASKS) {
-    const cwd = await mkdtemp(join(tmpdir(), "pij-task-reference-"));
+    const cwd = await mkdtemp(join(tmpdir(), "pijev-task-reference-"));
     t.after(() => rm(cwd, { recursive: true, force: true }));
     await task.setup(cwd);
     await task.reference(cwd);
@@ -68,7 +68,7 @@ test("independent reference repairs pass the same oracle and visible tests", { t
 
 test("candidate output cannot replace the independent check inventory", async (t) => {
   const task = TASKS[0]!;
-  const cwd = await mkdtemp(join(tmpdir(), "pij-task-forged-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-task-forged-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await task.setup(cwd);
   await writeFile(join(cwd, "src/index.js"), 'console.log(JSON.stringify({ passed: true, checks: { fabricated: true } })); process.exit(0);\n');
@@ -79,21 +79,21 @@ test("candidate output cannot replace the independent check inventory", async (t
 
 test("acceptance children do not inherit harness secrets", async (t) => {
   const task = TASKS[0]!;
-  const cwd = await mkdtemp(join(tmpdir(), "pij-task-env-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-task-env-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await task.setup(cwd);
   await task.reference(cwd);
-  await appendFile(join(cwd, "src/index.js"), '\nif (process.env.PIJ_ACCEPTANCE_TEST_SECRET) throw new Error("Harness secret leaked");\n');
-  const prior = process.env.PIJ_ACCEPTANCE_TEST_SECRET;
-  process.env.PIJ_ACCEPTANCE_TEST_SECRET = "synthetic-sentinel";
-  t.after(() => { if (prior === undefined) delete process.env.PIJ_ACCEPTANCE_TEST_SECRET; else process.env.PIJ_ACCEPTANCE_TEST_SECRET = prior; });
+  await appendFile(join(cwd, "src/index.js"), '\nif (process.env.PIJEV_ACCEPTANCE_TEST_SECRET) throw new Error("Harness secret leaked");\n');
+  const prior = process.env.PIJEV_ACCEPTANCE_TEST_SECRET;
+  process.env.PIJEV_ACCEPTANCE_TEST_SECRET = "synthetic-sentinel";
+  t.after(() => { if (prior === undefined) delete process.env.PIJEV_ACCEPTANCE_TEST_SECRET; else process.env.PIJEV_ACCEPTANCE_TEST_SECRET = prior; });
   const result = await task.verify(cwd);
   assert.equal(result.passed, true, JSON.stringify(result));
 });
 
 test("acceptance terminates a candidate that never returns", { timeout: 7000 }, async (t) => {
   const task = TASKS[0]!;
-  const cwd = await mkdtemp(join(tmpdir(), "pij-task-timeout-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-task-timeout-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await task.setup(cwd);
   await writeFile(join(cwd, "src/index.js"), "await new Promise(() => { setInterval(() => {}, 1000); });\n");
@@ -125,8 +125,8 @@ test("per-check deadlines survive replaced global timers and continue after a pe
 
 test("macOS acceptance denies protected reads and network access", { skip: process.platform !== "darwin" }, async (t) => {
   const task = TASKS[0]!;
-  const cwd = await mkdtemp(join(tmpdir(), "pij-task-sandbox-"));
-  const privateDirectory = await mkdtemp(join(homedir(), ".pij-acceptance-probe-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-task-sandbox-"));
+  const privateDirectory = await mkdtemp(join(homedir(), ".pijev-acceptance-probe-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   t.after(() => rm(privateDirectory, { recursive: true, force: true }));
   const privateFile = join(privateDirectory, "synthetic-private.txt");

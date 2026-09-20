@@ -23,8 +23,8 @@ ok 4 - doctor recognizes Gateway credentials for both Jev and the coding model w
   duration_ms: 75.549625
   type: 'test'
   ...
-# Subtest: keeps PiJ state separate from Pi and defaults to assist mode
-ok 5 - keeps PiJ state separate from Pi and defaults to assist mode
+# Subtest: keeps PiJev state separate from Pi and defaults to assist mode
+ok 5 - keeps PiJev state separate from Pi and defaults to assist mode
   ---
   duration_ms: 0.501667
   type: 'test'

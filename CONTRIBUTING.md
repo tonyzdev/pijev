@@ -1,6 +1,6 @@
-# Contributing to PiJ
+# Contributing to PiJev
 
-PiJ is an early terminal coding agent built on Pi, with Jev providing advisory decisions. Focus contributions on useful, measurable improvements to the coding workflow.
+PiJev is an early terminal coding agent built on Pi, with Jev providing advisory decisions. Focus contributions on useful, measurable improvements to the coding workflow.
 
 ## Local development
 

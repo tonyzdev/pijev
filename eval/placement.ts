@@ -79,7 +79,7 @@ export async function auditFinish(options: {
 /** Derived solely from the public task, never from evaluator holdouts. */
 export const REQUIREMENTS: Record<string, string[]> = {
     "session-mode": [
-        "A mode command stores exactly a custom pij-mode entry with version 1 and the selected mode.",
+        "A mode command stores exactly a custom pijev-mode entry with version 1 and the selected mode.",
         "Opening or recreating the session runtime restores the saved effective mode.",
         "The newest valid mode on the active branch wins; branches without a valid record use config.mode.",
         "Tree navigation immediately restores the destination branch mode.",

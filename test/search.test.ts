@@ -6,7 +6,7 @@ import test from "node:test";
 import { retrieveCode } from "../src/search.js";
 
 async function fixture(t: test.TestContext) {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-search-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-search-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await mkdir(join(cwd, "src"));
   await writeFile(join(cwd, "src", "session.ts"), "// session storage\nexport function refreshToken() {\n  return 'token';\n}\n// --help is literal\n");

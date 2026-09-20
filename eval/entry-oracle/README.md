@@ -1,7 +1,7 @@
 # Additional user-entry acceptance
 
 This is **diagnostic-derived acceptance for future experiments**. A finished
-real PiJ candidate passed the original seven frozen holdouts but assigned journal
+real PiJev candidate passed the original seven frozen holdouts but assigned journal
 IDs to entries that were not user messages and did not display its newly emitted
 `userMessageId` field. The two tests here were written after that diagnosis.
 They are a separate result, not a retrospective change to any previous seven-test

@@ -8,7 +8,7 @@ import type { DecisionProvider } from "../src/decisions.js";
 import { projectSourceEvidence, formatProjectSourceEvidence } from "../eval/project-source-evidence.js";
 
 async function fixture(t: { after(fn: () => Promise<void>): void }) {
-  const cwd = await realpath(await mkdtemp(join(tmpdir(), "pij-project-source-")));
+  const cwd = await realpath(await mkdtemp(join(tmpdir(), "pijev-project-source-")));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   execFileSync("git", ["init", "--quiet"], { cwd });
   await mkdir(join(cwd, "src")); await mkdir(join(cwd, "test"));

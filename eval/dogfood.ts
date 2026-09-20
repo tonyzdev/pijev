@@ -26,8 +26,8 @@ const project = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const protectedHome = await realpath(homedir());
 const runId = `${new Date().toISOString().replaceAll(":", "-")}-decision-lineage-${values.mode}-briefing-${values.briefing ? "on" : "off"}`;
 const source = await captureSourceProvenance(project);
-const output = join(project, ".pij", "evals", runId);
-const root = await realpath(await mkdtemp(join(process.platform === "darwin" ? "/private/tmp" : tmpdir(), "pij-df-")));
+const output = join(project, ".pijev", "evals", runId);
+const root = await realpath(await mkdtemp(join(process.platform === "darwin" ? "/private/tmp" : tmpdir(), "pijev-df-")));
 const cwd = join(root, "project");
 const exec = promisify(execFile);
 await mkdir(output, { recursive: true, mode: 0o700 });
@@ -38,12 +38,12 @@ const baseline = (await exec("git", ["rev-parse", "HEAD"], { cwd })).stdout.trim
 await exec("git", ["remote", "remove", "origin"], { cwd });
 await Promise.all([mkdir(join(cwd, ".home")), mkdir(join(cwd, ".tmp"))]);
 await exec("npm", ["ci", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd, timeout: 120000, maxBuffer: 1024 * 1024 });
-const prompt = `Implement a real observability improvement in this PiJ repository. Today decision journals record a process's calls but cannot reliably associate them with the actual Pi session or the user turn. Add session and per-user-turn identifiers to newly recorded Jev decision metadata, sourced from the actual runtime. Multiple evaluations within one turn must share the same turn identifier; a later user prompt must receive a different one; switching sessions must not reuse the old session identity. Keep old journal files readable. Keep metadata free of prompts, file contents, user text and credentials. Update the decisions CLI presentation so a user can identify the session/turn without losing current fields, and document the change. Add meaningful automated tests including at least one test through the actual Pi SDK that covers more than one user turn. Preserve assist/observe/off semantics and cancellation. Do not publish or commit. Inspect the implementation, implement the complete feature, then run type checks, tests and build. Work autonomously; do not ask for clarification.`;
+const prompt = `Implement a real observability improvement in this PiJev repository. Today decision journals record a process's calls but cannot reliably associate them with the actual Pi session or the user turn. Add session and per-user-turn identifiers to newly recorded Jev decision metadata, sourced from the actual runtime. Multiple evaluations within one turn must share the same turn identifier; a later user prompt must receive a different one; switching sessions must not reuse the old session identity. Keep old journal files readable. Keep metadata free of prompts, file contents, user text and credentials. Update the decisions CLI presentation so a user can identify the session/turn without losing current fields, and document the change. Add meaningful automated tests including at least one test through the actual Pi SDK that covers more than one user turn. Preserve assist/observe/off semantics and cancellation. Do not publish or commit. Inspect the implementation, implement the complete feature, then run type checks, tests and build. Work autonomously; do not ask for clarification.`;
 await writeFile(join(output, "task.txt"), prompt, { mode: 0o600 });
 const trace = createWriteStream(join(output, "cli-trace.jsonl"), { mode: 0o600 });
 const errors = createWriteStream(join(output, "stderr.txt"), { mode: 0o600 });
 const child = spawn(process.execPath, [
-  join(project, "bin", "pij.mjs"), "--jev-mode", values.mode,
+  join(project, "bin", "pijev.mjs"), "--jev-mode", values.mode,
   "--mode", "json", "--print", "--provider", "vercel-ai-gateway", "--model", values.model!, "--thinking", "off",
   "--no-context-files", "--no-skills", "--no-prompt-templates", "--no-extensions", "--offline",
   "--extension", join(project, "eval", "cli-control.ts"),
@@ -51,11 +51,11 @@ const child = spawn(process.execPath, [
 ], {
   cwd, detached: true, stdio: ["ignore", "pipe", "pipe"],
   env: {
-    ...shellEnvironment(cwd), AI_GATEWAY_API_KEY: key, PIJ_JEV_PROVIDER: "vercel", PIJ_HOME: join(output, "home"),
-    PIJ_EVAL_WORKSPACE: cwd, PIJ_EVAL_STATS: join(output, "control.json"), PIJ_EVAL_TURNS: values.turns,
-    PIJ_EVAL_PROTECTED_HOME: protectedHome,
-    PIJ_EVAL_TOKENS: String(budgets.tokens), PIJ_EVAL_SECONDS: String(budgets.seconds), PIJ_EVAL_MAX_OUTPUT_TOKENS: String(budgets.maxOutputTokens),
-    PIJ_SOURCE_BRIEFING: values.briefing ? "1" : "0",
+    ...shellEnvironment(cwd), AI_GATEWAY_API_KEY: key, PIJEV_JEV_PROVIDER: "vercel", PIJEV_HOME: join(output, "home"),
+    PIJEV_EVAL_WORKSPACE: cwd, PIJEV_EVAL_STATS: join(output, "control.json"), PIJEV_EVAL_TURNS: values.turns,
+    PIJEV_EVAL_PROTECTED_HOME: protectedHome,
+    PIJEV_EVAL_TOKENS: String(budgets.tokens), PIJEV_EVAL_SECONDS: String(budgets.seconds), PIJEV_EVAL_MAX_OUTPUT_TOKENS: String(budgets.maxOutputTokens),
+    PIJEV_SOURCE_BRIEFING: values.briefing ? "1" : "0",
     PI_OFFLINE: "1", PI_TELEMETRY: "0", PI_SKIP_VERSION_CHECK: "1",
   },
 });

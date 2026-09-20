@@ -10,7 +10,7 @@
 +    const restoreMode = (ctx: ExtensionContext) => {
 +      mode = config.mode;
 +      for (const entry of [...ctx.sessionManager.getBranch()].reverse()) {
-+        if (entry.type !== "custom" || entry.customType !== "pij-mode") continue;
++        if (entry.type !== "custom" || entry.customType !== "pijev-mode") continue;
 +        const data: unknown = entry.data;
 +        if (!data || typeof data !== "object" || Array.isArray(data)) continue;
 +        const state = data as Record<string, unknown>;
@@ -31,7 +31,7 @@
 +      resetSessionState(ctx);
        unsubscribeInput?.();
        if (ctx.mode === "tui") {
-         ctx.ui.setTitle("PiJ");
+         ctx.ui.setTitle("PiJev");
 @@ -38,6 +58,7 @@
        }
        update();
@@ -39,7 +39,7 @@
 +    pi.on("session_tree", (_event, ctx) => { resetSessionState(ctx); update(); });
      pi.on("session_shutdown", async () => { run.abort(); unsubscribeInput?.(); unsubscribeInput = undefined; context = undefined; await journal.flush(); });
  
-     pi.registerCommand("pij", {
+     pi.registerCommand("pijev", {
 @@ -46,7 +67,10 @@
        handler: async (args, ctx) => {
          const command = args.trim() || "status";
@@ -47,9 +47,9 @@
 -          run.abort(); run = new AbortController(); skillAdvice = undefined; skillPending = false; mode = command; update();
 +          run.abort(); run = new AbortController(); skillAdvice = undefined; skillPending = false;
 +          context = ctx;
-+          pi.appendEntry("pij-mode", { version: 1, mode: command });
++          pi.appendEntry("pijev-mode", { version: 1, mode: command });
 +          mode = command; update();
-           ctx.ui.notify(`PiJ mode: ${mode}. ${mode === "assist" ? "Jev suggestions can assist this session." : mode === "observe" ? "Decisions are recorded without changing recommendations or ranking." : "No Jev requests will be made."}`, "info");
+           ctx.ui.notify(`PiJev mode: ${mode}. ${mode === "assist" ? "Jev suggestions can assist this session." : mode === "observe" ? "Decisions are recorded without changing recommendations or ranking." : "No Jev requests will be made."}`, "info");
          } else if (command === "decisions") ctx.ui.notify(formatDecisions(journal.recent().slice(-8)), "info");
          else if (command === "status") {
 --- a/README.md
@@ -58,19 +58,19 @@
  | `observe` | Evaluate and record metadata without applying results; still sends requests and incurs provider usage |
  | `off` | Make no Jev requests |
  
--Switch with `/pij assist`, `/pij observe`, or `/pij off`. Session switches are temporary; set `PIJ_MODE` or pass `--jev-mode` to choose the launch mode.
-+Switch with `/pij assist`, `/pij observe`, or `/pij off`. The selection is saved as bounded Pi session metadata (`pij-mode`, `{version: 1, mode}`), outside model context. Resume restores the most recent valid selection on the active branch; forks inherit their selected ancestry and tree navigation restores the destination mode. `PIJ_MODE` or `--jev-mode` supplies the default only when that branch has no valid saved selection. Unknown, malformed, extra-field and unsupported-version entries are ignored. Pi saves new sessions after the first assistant response, so command-only sessions follow that normal lifecycle.
+-Switch with `/pijev assist`, `/pijev observe`, or `/pijev off`. Session switches are temporary; set `PIJEV_MODE` or pass `--jev-mode` to choose the launch mode.
++Switch with `/pijev assist`, `/pijev observe`, or `/pijev off`. The selection is saved as bounded Pi session metadata (`pijev-mode`, `{version: 1, mode}`), outside model context. Resume restores the most recent valid selection on the active branch; forks inherit their selected ancestry and tree navigation restores the destination mode. `PIJEV_MODE` or `--jev-mode` supplies the default only when that branch has no valid saved selection. Unknown, malformed, extra-field and unsupported-version entries are ignored. Pi saves new sessions after the first assistant response, so command-only sessions follow that normal lifecycle.
  
  | Command | Purpose |
  | --- | --- |
 --- a/README.zh-CN.md
 +++ b/README.zh-CN.md
 @@ -88,7 +88,7 @@
- | `/pij off` | 不请求 Jev |
+ | `/pijev off` | 不请求 Jev |
  | `/login`、`/model`、`/resume` | 主模型登录、选择、恢复会话 |
  
--会话中的模式切换仅作用于当前运行实例；下次启动使用 `PIJ_MODE` 或 `--jev-mode`。`observe` 仍会产生 Jev 请求与费用。
-+模式选择以有限的 Pi 会话元数据（`pij-mode`、`{version: 1, mode}`）保存，不进入模型上下文。恢复会话使用当前分支最近的有效选择；分叉只继承所选祖先，树导航会恢复目标分支的模式。只有分支中没有有效选择时，才使用 `PIJ_MODE` 或 `--jev-mode` 的默认值。未知、格式错误、多余字段或不支持版本的记录会被忽略。Pi 在首次 assistant 回复后保存新会话，只有命令而尚未保存的会话遵循这一生命周期。`observe` 仍会产生 Jev 请求与费用。
+-会话中的模式切换仅作用于当前运行实例；下次启动使用 `PIJEV_MODE` 或 `--jev-mode`。`observe` 仍会产生 Jev 请求与费用。
++模式选择以有限的 Pi 会话元数据（`pijev-mode`、`{version: 1, mode}`）保存，不进入模型上下文。恢复会话使用当前分支最近的有效选择；分叉只继承所选祖先，树导航会恢复目标分支的模式。只有分支中没有有效选择时，才使用 `PIJEV_MODE` 或 `--jev-mode` 的默认值。未知、格式错误、多余字段或不支持版本的记录会被忽略。Pi 在首次 assistant 回复后保存新会话，只有命令而尚未保存的会话遵循这一生命周期。`observe` 仍会产生 Jev 请求与费用。
  
  ## 配置
  

@@ -35,7 +35,7 @@ def phases(r):
 def row(r):
     u = r["usage"]; bk = r["byKind"]; e = r["evaluation"]; p = phases(r)
     return dict(ok=e["resolved"], f2p=e["f2pPass"], gold=e["goldTouched"] > 0, budget=r["termination"] == "budget", search=bk.get("search", {}).get("calls", 0), read=bk.get("read", {}).get("calls", 0),
-                tools=len(r["calls"]), tok=u["input"] + u["cacheRead"] + u["cacheWrite"], sec=r["elapsedMs"] / 1000, pij=sum(1 for c in r["calls"] if c["tool"] == "pij_search"), jev=r["jev"]["calls"], jevs=r["jev"]["latencyMs"] / 1000, **p)
+                tools=len(r["calls"]), tok=u["input"] + u["cacheRead"] + u["cacheWrite"], sec=r["elapsedMs"] / 1000, pijev=sum(1 for c in r["calls"] if c["tool"] == ("pij_search", "pijev_search")), jev=r["jev"]["calls"], jevs=r["jev"]["latencyMs"] / 1000, **p)
 
 rows = {i: {a: row(by[i][a]) for a in arms} for i in ids}
 print(f"{len(ids)} instances with all arms: {arms}\n")

@@ -1,6 +1,7 @@
 .firecrawl/
 node_modules/
 dist/
+.pijev/
 .pij/
 .env
 .env.*

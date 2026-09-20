@@ -90,7 +90,7 @@ async function main() {
     console.log(JSON.stringify({ passed, ...counts, ...result }, null, 2)); process.exitCode = passed ? 0 : 1; return;
   }
   if (command !== "verify") throw new Error(`Unknown command: ${command}`);
-  const temporary = await mkdtemp(join(tmpdir(), "pij-session-mode-validation-"));
+  const temporary = await mkdtemp(join(tmpdir(), "pijev-session-mode-validation-"));
   const checks: Record<string, unknown> = {}; let matched = true;
   try {
     await mkdir(join(fixture, "evidence"), { recursive: true });

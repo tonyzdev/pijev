@@ -6,12 +6,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 import { loadConfig } from "../src/config.js";
 
 // Exercise actual Pi cancellation, not an extension-only AbortController.
 test("session.abort cancels an in-flight skill decision before any coding-model request", { timeout: 10000 }, async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-cancel-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-cancel-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   const skillPath = join(cwd, "SKILL.md");
   await writeFile(skillPath, "Inspect tokens before changing code.");
@@ -40,16 +40,16 @@ test("session.abort cancels an in-flight skill decision before any coding-model 
   const baseUrl = `http://127.0.0.1:${address.port}/v1`;
   const home = join(cwd, "home");
   const runtime = await ModelRuntime.create({ authPath: join(home, "auth.json"), modelsPath: null, refreshOnCreate: false });
-  runtime.registerProvider("pij-fixture", { baseUrl, api: "openai-completions", apiKey: "fixture", models: [{ id: "fixture", name: "fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 32000, maxTokens: 512 }] });
+  runtime.registerProvider("pijev-fixture", { baseUrl, api: "openai-completions", apiKey: "fixture", models: [{ id: "fixture", name: "fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 32000, maxTokens: 512 }] });
   const settings = SettingsManager.inMemory({ retry: { enabled: false }, compaction: { enabled: false } });
   const resources = new DefaultResourceLoader({
     cwd, agentDir: home, settingsManager: settings, noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
     agentsFilesOverride: () => ({ agentsFiles: [] }),
     skillsOverride: () => ({ skills: [{ name: "tokens", description: "Inspect tokens", filePath: skillPath, baseDir: cwd, sourceInfo: { path: skillPath, source: "fixture", scope: "temporary", origin: "top-level" }, disableModelInvocation: false }], diagnostics: [] }),
-    extensionFactories: [createPijExtension(loadConfig({ PIJ_HOME: home, TYPESAFE_API_KEY: "fixture", PIJ_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJ_JEV_TIMEOUT_MS: "5000" }))],
+    extensionFactories: [createPijevExtension(loadConfig({ PIJEV_HOME: home, TYPESAFE_API_KEY: "fixture", PIJEV_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJEV_JEV_TIMEOUT_MS: "5000" }))],
   });
   await resources.reload();
-  const { session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("pij-fixture", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory() });
+  const { session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("pijev-fixture", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory() });
   t.after(() => session.dispose());
   await session.bindExtensions({});
   const prompt = session.prompt("Inspect the token code.");

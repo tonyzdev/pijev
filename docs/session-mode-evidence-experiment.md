@@ -7,7 +7,7 @@ published at `f0c4d47`.
 
 ## Task and independence
 
-The real PiJ feature task starts from public revision `4e1cdef`: persist the
+The real PiJev feature task starts from public revision `4e1cdef`: persist the
 user's selected Jev mode in Pi session/branch metadata; restore the appropriate
 mode on resume and branch navigation without contaminating model context or
 leaking mode between unrelated sessions. Existing mode cancellation and off
@@ -27,7 +27,7 @@ curated benchmark or a claim of generalization across repositories.
 ## Frozen comparison
 
 Run two pairs, each with a fresh lexical condition and a fresh Jev condition.
-Both use actual `bin/pij.mjs`, Sonnet 4.6, medium thinking, 64 admitted requests,
+Both use actual `bin/pijev.mjs`, Sonnet 4.6, medium thinking, 64 admitted requests,
 2.5 million reported tokens, 16,384 output tokens per request, and a 600-second
 agent limit. These limits are selected before generation and applied equally;
 they are larger than the prior attribution pair and should not be used for a
@@ -35,7 +35,7 @@ direct timing comparison with that task. A response may overshoot the token
 admission threshold. Preprocessing time and usage are recorded separately and
 included in evidence-plus-agent elapsed time; dependency installation is not.
 
-Ordinary PiJ decisions, initial source briefing and automatic checkpoints are
+Ordinary PiJev decisions, initial source briefing and automatic checkpoints are
 off. The only intervention is the existing parent-side dependency preprocessor.
 Both policies receive the same bounded installed-source inventory and initial
 file pool, deliver original excerpts in the same format, and leave coding and
@@ -57,7 +57,7 @@ metadata needed by Node path resolution. Direct and actual-CLI regressions
 cover peer contents, symlink and `/tmp` aliases, local reads and Node execution.
 Calibration reference trees are removed before generation. Review also
 strengthened runtime acceptance with two deliberate bad variants: lazy
-restoration only in `/pij status`, and search ranking disconnected from mode
+restoration only in `/pijev status`, and search ranking disconnected from mode
 cancellation. Each now fails its intended check (7/8), without timeout or
 missing tests. These control repairs do not change retrieval policy.
 
@@ -126,7 +126,7 @@ rates or prove that Jev caused the failures.
 Jev made two successful, uncached preprocessing evaluations in each repetition:
 23,609 input and 852 output tokens per run. Recorded network wait was 2,304 ms
 and 2,443 ms respectively; total preprocessing was 2,539 ms and 2,729 ms. Lexical
-preprocessing took 242 ms and 295 ms. Ordinary PiJ decisions and automatic
+preprocessing took 242 ms and 295 ms. Ordinary PiJev decisions and automatic
 checkpoints made no Jev calls in any condition.
 
 ### Failures and deliverables

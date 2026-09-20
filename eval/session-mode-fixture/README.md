@@ -1,12 +1,12 @@
-# Session-native PiJ mode fixture
+# Session-native PiJev mode fixture
 
-This is a new feature task at public PiJ commit `4e1cdefd9144beb6bb43d3f0ed7189b0609c4254`, pinned to Pi SDK 0.85.1. There is no seed patch: absence of persistence in the public baseline is the expected red case. `task.md` and its schema/precedence were fixed before candidate generation. The policy-authoring agent could read only the task and public reproduction until its policy/task freeze; the reference and evaluator tests were independently authored in this directory. This is procedural separation within one shared development workspace, not cryptographic blindness.
+This is a new feature task at public PiJev commit `4e1cdefd9144beb6bb43d3f0ed7189b0609c4254`, pinned to Pi SDK 0.85.1. There is no seed patch: absence of persistence in the public baseline is the expected red case. `task.md` and its schema/precedence were fixed before candidate generation. The policy-authoring agent could read only the task and public reproduction until its policy/task freeze; the reference and evaluator tests were independently authored in this directory. This is procedural separation within one shared development workspace, not cryptographic blindness.
 
 Candidate material is a fresh shallow base-only clone with one reachable commit, no Git remote, `TASK.md`, and `test/session-mode-visible.test.ts`. It contains no reference patch, evaluator tests, evidence, README, or later source history. Trusted installed dependencies are symlinked read-only under the sandbox. Generated candidates must finish, with their subprocesses stopped, before evaluator tests are copied in; they are removed afterward. A candidate must not resume generation after receiving hidden evaluator output if scored as the original held-out run.
 
 ## Acceptance
 
-The visible test saves a real SDK session after `/pij off`, reopens the disk file using a fresh extension runtime, and observes `/pij status`. It also checks that commands do not invoke the coding model.
+The visible test saves a real SDK session after `/pijev off`, reopens the disk file using a fresh extension runtime, and observes `/pijev status`. It also checks that commands do not invoke the coding model.
 
 The eight evaluator checks use actual Pi commands, SessionManager files, AgentSession navigation and AgentSessionRuntime fork/new/resume APIs:
 

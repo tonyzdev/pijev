@@ -78,7 +78,7 @@ export function createPlacementExtension(options: {
                 const continued = sequence === 1 && result.gaps.length > 0 && !signal.aborted;
                 await options.onRecord?.({ kind: "finish", sequence, ...result, continued, deletedPaths, files: Object.fromEntries(Object.entries(files).map(([p, s]) => [p, hash(s)])), elapsedMs: Math.round(performance.now() - start) });
                 if (continued)
-                    pi.sendMessage({ customType: "pij-placement-review", content: "Before ending, verify the following requirements against the actual implementation and tests. The review has not established sufficient evidence; it is fallible and is not proof of a defect. Fix actual omissions, add meaningful production regression tests where needed, run verification, and then provide the final result. This is the single bounded review continuation.\n" + result.gaps.map((gap, i) => `${i + 1}. ${gap}`).join("\n"), display: true }, { triggerTurn: true, deliverAs: "followUp" });
+                    pi.sendMessage({ customType: "pijev-placement-review", content: "Before ending, verify the following requirements against the actual implementation and tests. The review has not established sufficient evidence; it is fallible and is not proof of a defect. Fix actual omissions, add meaningful production regression tests where needed, run verification, and then provide the final result. This is the single bounded review continuation.\n" + result.gaps.map((gap, i) => `${i + 1}. ${gap}`).join("\n"), display: true }, { triggerTurn: true, deliverAs: "followUp" });
             }
             catch {
                 await options.onRecord?.({ kind: "error", sequence, skipped: "finish_hook_error" });
@@ -96,7 +96,7 @@ const placement: ExtensionFactory = async (pi) => {
     pi.on("tool_call", () => { if (!ready || !initialized)
         return { block: true, reason: "Placement experiment is not ready" }; });
     try {
-        const cwd = process.env.PIJ_EVAL_WORKSPACE, log = process.env.PIJ_PLACEMENT_LOG, policy = process.env.PIJ_PLACEMENT_POLICY as Placement, taskName = process.env.PIJ_PLACEMENT_TASK;
+        const cwd = process.env.PIJEV_EVAL_WORKSPACE, log = process.env.PIJEV_PLACEMENT_LOG, policy = process.env.PIJEV_PLACEMENT_POLICY as Placement, taskName = process.env.PIJEV_PLACEMENT_TASK;
         if (!cwd || !log || !PLACEMENTS.includes(policy) || !taskName || !REQUIREMENTS[taskName] || !process.send)
             throw Error("Invalid placement configuration");
         pi.on("session_start", async () => {
@@ -104,14 +104,14 @@ const placement: ExtensionFactory = async (pi) => {
                 const timer = setTimeout(() => { cleanup(); reject(Error("Placement parent did not acknowledge readiness")); }, 3000);
                 const receive = (message: unknown) => { if ((message as {
                     type?: string;
-                })?.type === "pij_placement_ack") {
+                })?.type === "pijev_placement_ack") {
                     cleanup();
                     ready = true;
                     resolve();
                 } };
                 const cleanup = () => { clearTimeout(timer); process.off("message", receive); };
                 process.on("message", receive);
-                process.send!({ type: "pij_placement_ready", policy }, error => { if (error) {
+                process.send!({ type: "pijev_placement_ready", policy }, error => { if (error) {
                     cleanup();
                     reject(error);
                 } });

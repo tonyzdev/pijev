@@ -6,7 +6,7 @@ import test from "node:test";
 import { dependencyEvidence, formatDependencyEvidence } from "../eval/dependency-evidence.js";
 
 test("dependency evidence reads declared installed code, preserves line references, and excludes bundled or outside data", async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-de-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-de-"));
   t.after(() => rm(cwd, {recursive:true,force:true}));
   const pkg=join(cwd,"node_modules/session-engine");
   await mkdir(join(pkg,"dist/bundle"),{recursive:true});
@@ -39,7 +39,7 @@ test("dependency evidence reads declared installed code, preserves line referenc
 });
 
 test("Jev evidence ranks the same inventory and returns original text; fallback keeps lexical selection", async(t)=>{
-  const cwd=await mkdtemp(join(tmpdir(),"pij-der-"));t.after(()=>rm(cwd,{recursive:true,force:true}));
+  const cwd=await mkdtemp(join(tmpdir(),"pijev-der-"));t.after(()=>rm(cwd,{recursive:true,force:true}));
   const pkg=join(cwd,"node_modules/session-engine");await mkdir(pkg,{recursive:true});
   await writeFile(join(cwd,"package.json"),JSON.stringify({dependencies:{"session-engine":"1"}}));
   await writeFile(join(pkg,"package.json"),JSON.stringify({name:"session-engine",version:"1",description:"user session",main:"index.js"}));

@@ -7,11 +7,11 @@ bounded evidence-selection decision before that investigation begins.
 
 ## Frozen comparison
 
-Two actual `bin/pij.mjs` runs use the unchanged attribution task and seed in
+Two actual `bin/pijev.mjs` runs use the unchanged attribution task and seed in
 `eval/checkpoint-fixture`. Both use Sonnet 4.6, medium thinking, at most 48
 provider requests, 1.6 million reported tokens, 16,384 output tokens per request,
 and a 480-second agent deadline. Each gets a fresh shallow base-only checkout
-and its own installed dependencies. All ordinary PiJ decisions, source briefing,
+and its own installed dependencies. All ordinary PiJev decisions, source briefing,
 and automatic checkpoints are off. The manual checkpoint extension remains
 loaded for its established readiness handshake, without scheduling tests.
 
@@ -75,7 +75,7 @@ node --env-file=.env --import tsx eval/checkpoint-run.ts --dependency-evidence j
 ```
 
 Private raw traces, candidate directories, exact evidence and provenance go to
-`.pij/evals`. After the model and all its processes stop, apply the established
+`.pijev/evals`. After the model and all its processes stop, apply the established
 five checkpoint acceptance checks and `runEntryOracle(workspace)`. The oracle
 is evaluator-only and never available during candidate generation. Commit
 sanitized outcomes and limitations here after both runs; normal product
@@ -88,7 +88,7 @@ files / 2,823,944 bytes. Both reached the 1.6-million-token admission budget;
 neither completed the task. A response can overshoot the admission threshold.
 The Jev condition made two successful, uncached preprocessing calls: 22,645
 input / 852 output tokens, 2,292 ms recorded service wait, 2,535 ms including
-local retrieval. Lexical preprocessing took 227 ms. Ordinary PiJ decisions and
+local retrieval. Lexical preprocessing took 227 ms. Ordinary PiJev decisions and
 automatic test execution remained off in both conditions.
 
 | Observation | Lexical | Jev |

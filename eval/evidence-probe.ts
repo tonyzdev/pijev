@@ -35,7 +35,7 @@ let rows: Row[];
 if (values.live) {
   const config = loadConfig();
   assert.ok(config.apiKey, "Load a Jev provider key before using --live");
-  const output = join(directory, "../../.pij/evidence-probes", `${new Date().toISOString().replaceAll(":", "-")}.json`);
+  const output = join(directory, "../../.pijev/evidence-probes", `${new Date().toISOString().replaceAll(":", "-")}.json`);
   await mkdir(dirname(output), { recursive: true, mode: 0o700 });
   rows = [];
   const persist = () => writeFile(output, JSON.stringify({ protocolHash, fixtureHash: hash(fixtureText), provider: config.provider, model: config.model, rows }, null, 2), { mode: 0o600 });

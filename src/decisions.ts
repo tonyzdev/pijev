@@ -115,6 +115,6 @@ export class DecisionEngine {
     const answer = result.answers.category;
     if (answer?.type !== "choice" || answer.confidence < 0.55 || (answer.probabilities[answer.choice] ?? 0) < 0.65) return;
     const hint = failureHints[answer.choice];
-    return hint ? `PiJ diagnostic suggestion (${answer.choice}; not a verified root cause): ${hint}` : undefined;
+    return hint ? `PiJev diagnostic suggestion (${answer.choice}; not a verified root cause): ${hint}` : undefined;
   }
 }

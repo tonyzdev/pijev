@@ -9,7 +9,7 @@ import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager
 import { shellEnvironment, shellQuote } from "../eval/sandbox.js";
 
 async function loadedControlFixture(t: test.TestContext, protectedHome: "valid" | "missing" | "workspace", launchCli = false, checkpoint: boolean | "no-ack" = false, placement: boolean | "no-ack" | "jev" = false) {
-  const root = await realpath(await mkdtemp("/private/tmp/pij-iso-"));
+  const root = await realpath(await mkdtemp("/private/tmp/pijev-iso-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const cwd = join(root, "clone");
   const protectedRoot = join(root, "actual-home");
@@ -20,14 +20,14 @@ async function loadedControlFixture(t: test.TestContext, protectedHome: "valid" 
   await writeFile(join(localDocs, "extensions.md"), "LOCAL_SDK_DOCUMENTATION\n");
   await writeFile(join(protectedRoot, "marker.txt"), "NON_SECRET_ISOLATION_MARKER\n");
   await writeFile(join(root, "peer-candidate.txt"), "SYNTHETIC_PEER_CANDIDATE\n");
-  const env: NodeJS.ProcessEnv = { HOME: join(cwd, ".home"), PIJ_EVAL_WORKSPACE: cwd, PIJ_EVAL_STATS: join(root, "stats.json"), PIJ_EVAL_TURNS: "12", PIJ_EVAL_TOKENS: "100000", PIJ_ISOLATION_SENTINEL: "synthetic-inherited-marker", PIJ_EVAL_PROTECTED_HOME: protectedHome === "valid" ? protectedRoot : protectedHome === "workspace" ? join(cwd, ".home") : undefined };
+  const env: NodeJS.ProcessEnv = { HOME: join(cwd, ".home"), PIJEV_EVAL_WORKSPACE: cwd, PIJEV_EVAL_STATS: join(root, "stats.json"), PIJEV_EVAL_TURNS: "12", PIJEV_EVAL_TOKENS: "100000", PIJEV_ISOLATION_SENTINEL: "synthetic-inherited-marker", PIJEV_EVAL_PROTECTED_HOME: protectedHome === "valid" ? protectedRoot : protectedHome === "workspace" ? join(cwd, ".home") : undefined };
   const previous = Object.fromEntries(Object.keys(env).map((key) => [key, process.env[key]]));
   for (const [key, value] of Object.entries(env)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
   t.after(() => { for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } });
   const commands = [
     `cat ${shellQuote(join(protectedRoot, "marker.txt"))}`,
     `printf forbidden > ${shellQuote(join(root, "outside.txt"))}`,
-    'printf "%s" "${PIJ_ISOLATION_SENTINEL-unset}" > environment.txt',
+    'printf "%s" "${PIJEV_ISOLATION_SENTINEL-unset}" > environment.txt',
     `cat ${shellQuote(resolve("package.json"))} > /dev/null`,
     "printf permitted > proof.txt",
     `cat ${shellQuote(join(root, "peer-candidate.txt"))}`,
@@ -76,14 +76,14 @@ async function loadedControlFixture(t: test.TestContext, protectedHome: "valid" 
     await writeFile(join(home, "models.json"), JSON.stringify({ providers: { fixture: { baseUrl: `http://127.0.0.1:${address.port}/v1`, api: "openai-completions", apiKey: "fixture-only", models: [{ id: "fixture", name: "fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 128000, maxTokens: 16384 }] } } }));
     let checkpointReady = false, placementReady = false;
     const checkpointProcesses: string[] = [];
-    const child = spawn(process.execPath, [resolve("bin/pij.mjs"), "--jev-mode", "off", "--mode", "json", "--print", "--provider", "fixture", "--model", "fixture", "--thinking", "off", "--no-context-files", "--no-skills", "--no-prompt-templates", "--no-extensions", "--offline", "--extension", resolve("eval/cli-control.ts"), ...(checkpoint ? ["--extension", resolve("eval/checkpoint-extension.ts")] : []), ...(placement ? ["--extension", resolve("eval/placement-extension.ts")] : []), "Run the isolation fixture commands."], {
-      cwd, env: { ...shellEnvironment(cwd), ...env, PIJ_HOME: home, PI_OFFLINE: "1", PI_TELEMETRY: "0", PI_SKIP_VERSION_CHECK: "1", ...(checkpoint ? { PIJ_CHECKPOINT_MODE: "dependencies", PIJ_CHECKPOINT_LOG: join(root, "checkpoints.jsonl") } : {}), ...(placement ? { PIJ_PLACEMENT_POLICY: placement === "jev" ? "finish-jev" : "finish-local", PIJ_JEV_PROVIDER: "typesafe", TYPESAFE_API_KEY: "local-fixture-only", PIJ_JEV_ENDPOINT: `http://127.0.0.1:${address.port}/jev`, PIJ_PLACEMENT_TASK: "session-mode", PIJ_PLACEMENT_LOG: join(root, "placements.jsonl") } : {}) }, timeout: 10000, stdio: ["ignore", "pipe", "pipe", "ipc"],
+    const child = spawn(process.execPath, [resolve("bin/pijev.mjs"), "--jev-mode", "off", "--mode", "json", "--print", "--provider", "fixture", "--model", "fixture", "--thinking", "off", "--no-context-files", "--no-skills", "--no-prompt-templates", "--no-extensions", "--offline", "--extension", resolve("eval/cli-control.ts"), ...(checkpoint ? ["--extension", resolve("eval/checkpoint-extension.ts")] : []), ...(placement ? ["--extension", resolve("eval/placement-extension.ts")] : []), "Run the isolation fixture commands."], {
+      cwd, env: { ...shellEnvironment(cwd), ...env, PIJEV_HOME: home, PI_OFFLINE: "1", PI_TELEMETRY: "0", PI_SKIP_VERSION_CHECK: "1", ...(checkpoint ? { PIJEV_CHECKPOINT_MODE: "dependencies", PIJEV_CHECKPOINT_LOG: join(root, "checkpoints.jsonl") } : {}), ...(placement ? { PIJEV_PLACEMENT_POLICY: placement === "jev" ? "finish-jev" : "finish-local", PIJEV_JEV_PROVIDER: "typesafe", TYPESAFE_API_KEY: "local-fixture-only", PIJEV_JEV_ENDPOINT: `http://127.0.0.1:${address.port}/jev`, PIJEV_PLACEMENT_TASK: "session-mode", PIJEV_PLACEMENT_LOG: join(root, "placements.jsonl") } : {}) }, timeout: 10000, stdio: ["ignore", "pipe", "pipe", "ipc"],
     });
     child.on("message", (message) => {
       const event = message as { type?: string; phase?: string };
-      if (event.type === "pij_checkpoint_ready") { checkpointReady = true; if (checkpoint !== "no-ack") child.send({ type: "pij_checkpoint_ack" }); }
-      if (event.type === "pij_placement_ready") { placementReady = true; if (placement !== "no-ack") child.send({ type: "pij_placement_ack" }); }
-      if (event.type === "pij_checkpoint_process") checkpointProcesses.push(event.phase!);
+      if (event.type === "pijev_checkpoint_ready") { checkpointReady = true; if (checkpoint !== "no-ack") child.send({ type: "pijev_checkpoint_ack" }); }
+      if (event.type === "pijev_placement_ready") { placementReady = true; if (placement !== "no-ack") child.send({ type: "pijev_placement_ack" }); }
+      if (event.type === "pijev_checkpoint_process") checkpointProcesses.push(event.phase!);
     });
     const result = { stdout: "", stderr: "" };
     child.stdout!.on("data", (data: Buffer) => { result.stdout += data.toString(); });

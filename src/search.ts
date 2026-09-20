@@ -76,7 +76,7 @@ export async function retrieveCode(options: SearchOptions): Promise<SearchResult
     child.stderr.resume();
     child.once("error", (error: NodeJS.ErrnoException) => {
       failed = true;
-      reject(new Error(error.code === "ENOENT" ? "ripgrep is required. Install rg, then retry pij_search." : "Unable to start source search."));
+      reject(new Error(error.code === "ENOENT" ? "ripgrep is required. Install rg, then retry pijev_search." : "Unable to start source search."));
     });
     child.once("close", (code) => {
       clearTimeout(timer);

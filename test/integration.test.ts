@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 import { loadConfig, type DecisionMode, type JevProvider } from "../src/config.js";
 import { readRecentDecisions } from "../src/telemetry.js";
 import type { Question } from "../src/jev.js";
@@ -15,7 +15,7 @@ for (const retrieval of ["literal", "question", "briefing"] as const) {
 for (const provider of ["typesafe", "vercel"] satisfies JevProvider[]) {
 for (const mode of ["assist", "observe", "off"] satisfies DecisionMode[]) {
   test(`real Pi runtime: ${provider}/${mode}/${retrieval} preserves tool execution and applies only permitted Jev effects`, async (t) => {
-    const cwd = await mkdtemp(join(tmpdir(), "pij-integration-"));
+    const cwd = await mkdtemp(join(tmpdir(), "pijev-integration-"));
     t.after(() => rm(cwd, { recursive: true, force: true }));
     await writeFile(join(cwd, "a.ts"), "export const token = 'unrelated';\n");
     await writeFile(join(cwd, "b.ts"), "export function refreshToken(token: string) { return token; }\n");
@@ -48,9 +48,9 @@ for (const mode of ["assist", "observe", "off"] satisfies DecisionMode[]) {
       modelRequests.push(text);
       llmCalls++;
       const calls = [
-        { name: "pij_search", arguments: { query: "Find token refresh implementation", ...(retrieval === "literal" ? { patterns: ["token"] } : {}) } },
+        { name: "pijev_search", arguments: { query: "Find token refresh implementation", ...(retrieval === "literal" ? { patterns: ["token"] } : {}) } },
         { name: "bash", arguments: { command: "exit 2" } },
-        { name: "write", arguments: { path: "proof.txt", content: "PiJ tool execution verified\n" } },
+        { name: "write", arguments: { path: "proof.txt", content: "PiJev tool execution verified\n" } },
       ];
       const call = calls[llmCalls - 1];
       const delta = call ? { role: "assistant", tool_calls: [{ index: 0, id: `call_${llmCalls}`, type: "function", function: { name: call.name, arguments: JSON.stringify(call.arguments) } }] } : { role: "assistant", content: "Fixture task complete." };
@@ -66,9 +66,9 @@ for (const mode of ["assist", "observe", "off"] satisfies DecisionMode[]) {
     assert.ok(address && typeof address === "object");
     const baseUrl = `http://127.0.0.1:${address.port}/v1`;
     const home = join(cwd, "home");
-    const config = loadConfig({ PIJ_HOME: home, PIJ_MODE: mode, PIJ_SOURCE_BRIEFING: retrieval === "briefing" ? "1" : "0", PIJ_JEV_PROVIDER: provider, TYPESAFE_API_KEY: "fixture-key", AI_GATEWAY_API_KEY: "fixture-key", PIJ_JEV_ENDPOINT: provider === "vercel" ? baseUrl : `${baseUrl}/systemone` });
+    const config = loadConfig({ PIJEV_HOME: home, PIJEV_MODE: mode, PIJEV_SOURCE_BRIEFING: retrieval === "briefing" ? "1" : "0", PIJEV_JEV_PROVIDER: provider, TYPESAFE_API_KEY: "fixture-key", AI_GATEWAY_API_KEY: "fixture-key", PIJEV_JEV_ENDPOINT: provider === "vercel" ? baseUrl : `${baseUrl}/systemone` });
     const runtime = await ModelRuntime.create({ authPath: join(home, "auth.json"), modelsPath: null, refreshOnCreate: false });
-    runtime.registerProvider("pij-fixture", {
+    runtime.registerProvider("pijev-fixture", {
       baseUrl, api: "openai-completions", apiKey: "fixture-key",
       models: [{ id: "fixture", name: "Local test fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 32000, maxTokens: 2048 }],
     });
@@ -78,25 +78,25 @@ for (const mode of ["assist", "observe", "off"] satisfies DecisionMode[]) {
       noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
       agentsFilesOverride: () => ({ agentsFiles: [] }),
       skillsOverride: () => ({ skills: [{ name: "tokens", description: "Inspect token refresh code", filePath: skillPath, baseDir: cwd, sourceInfo: { path: skillPath, source: "fixture", scope: "temporary", origin: "top-level" }, disableModelInvocation: false }], diagnostics: [] }),
-      extensionFactories: [createPijExtension(config)],
+      extensionFactories: [createPijevExtension(config)],
     });
     await resources.reload();
     assert.deepEqual(resources.getExtensions().errors, []);
-    const { session } = await createAgentSession({ cwd, agentDir: home, model: runtime.getModel("pij-fixture", "fixture"), modelRuntime: runtime, resourceLoader: resources, settingsManager: settings, sessionManager: SessionManager.inMemory() });
+    const { session } = await createAgentSession({ cwd, agentDir: home, model: runtime.getModel("pijev-fixture", "fixture"), modelRuntime: runtime, resourceLoader: resources, settingsManager: settings, sessionManager: SessionManager.inMemory() });
     t.after(() => session.dispose());
     await session.bindExtensions({});
     await session.prompt("Inspect token refresh code, then write proof.txt.");
-    assert.equal(await readFile(join(cwd, "proof.txt"), "utf8"), "PiJ tool execution verified\n");
+    assert.equal(await readFile(join(cwd, "proof.txt"), "utf8"), "PiJev tool execution verified\n");
     assert.equal(llmCalls, 4);
-    assert.equal(modelRequests[0]!.includes("PiJ initial evidence"), retrieval === "briefing");
+    assert.equal(modelRequests[0]!.includes("PiJev initial evidence"), retrieval === "briefing");
     if (retrieval === "briefing") {
       assert.ok(modelRequests[0]!.includes("refreshToken"));
       assert.equal(modelRequests[0]!.includes("ranked by a judgement model"), mode === "assist");
       const conversation = JSON.parse(modelRequests[3]!).messages as { role: string; content: unknown }[];
-      const snapshotIndex = conversation.findIndex((message) => JSON.stringify(message.content).includes("PiJ initial evidence"));
+      const snapshotIndex = conversation.findIndex((message) => JSON.stringify(message.content).includes("PiJev initial evidence"));
       assert.ok(snapshotIndex > 0 && snapshotIndex < conversation.findIndex((message) => message.role === "assistant"), "initial evidence must precede subsequent tool observations, not arrive as a fresh user message after every tool");
     }
-    const search = session.messages.find((m) => m.role === "toolResult" && m.toolName === "pij_search");
+    const search = session.messages.find((m) => m.role === "toolResult" && m.toolName === "pijev_search");
     const searchText = JSON.stringify(search);
     assert.ok(searchText.includes("a.ts") && searchText.includes("b.ts"));
     if (retrieval === "literal") assert.ok(mode === "assist" ? searchText.indexOf("b.ts") < searchText.indexOf("a.ts") : searchText.indexOf("a.ts") < searchText.indexOf("b.ts"));
@@ -107,9 +107,9 @@ for (const mode of ["assist", "observe", "off"] satisfies DecisionMode[]) {
     }
     const failure = session.messages.find((m) => m.role === "toolResult" && m.toolName === "bash");
     assert.ok(failure && failure.role === "toolResult" && failure.isError);
-    assert.equal(JSON.stringify(failure).includes("PiJ diagnostic suggestion"), mode === "assist");
+    assert.equal(JSON.stringify(failure).includes("PiJev diagnostic suggestion"), mode === "assist");
     const transcript = modelRequests.join("\n");
-    assert.equal(transcript.includes("PiJ skill suggestion"), mode === "assist");
+    assert.equal(transcript.includes("PiJev skill suggestion"), mode === "assist");
     const records = await readRecentDecisions(home);
     const userEntry = session.sessionManager.getBranch().findLast((entry) => entry.type === "message" && entry.message.role === "user");
     assert.ok(userEntry);
@@ -127,7 +127,7 @@ for (const mode of ["assist", "observe", "off"] satisfies DecisionMode[]) {
       assert.equal(latest.filter((row) => row.kind === "source_briefing").length, mode === "off" ? 0 : 2);
       if (mode !== "off") assert.notEqual(latest.at(-1)!.userMessageId, userEntry.id);
       const previousSession = session.sessionId;
-      const { session: switchedSession } = await createAgentSession({ cwd, agentDir: home, model: runtime.getModel("pij-fixture", "fixture"), modelRuntime: runtime, resourceLoader: resources, settingsManager: settings, sessionManager: SessionManager.inMemory() });
+      const { session: switchedSession } = await createAgentSession({ cwd, agentDir: home, model: runtime.getModel("pijev-fixture", "fixture"), modelRuntime: runtime, resourceLoader: resources, settingsManager: settings, sessionManager: SessionManager.inMemory() });
       t.after(() => switchedSession.dispose());
       await switchedSession.bindExtensions({});
       assert.notEqual(switchedSession.sessionId, previousSession);

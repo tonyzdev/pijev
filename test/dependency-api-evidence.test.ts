@@ -7,7 +7,7 @@ import { dependencyApiEvidence, formatDependencyApiEvidence } from "../eval/depe
 import { evaluateGateway } from "../src/gateway.js";
 
 async function fixture(t: { after(fn: () => Promise<void>): void }) {
-  const cwd = await realpath(await mkdtemp(join(tmpdir(), "pij-api-")));
+  const cwd = await realpath(await mkdtemp(join(tmpdir(), "pijev-api-")));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   const pkg = join(cwd, "node_modules/session-engine");
   await mkdir(join(pkg, "dist"), { recursive: true });

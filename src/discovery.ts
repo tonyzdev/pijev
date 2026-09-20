@@ -111,7 +111,7 @@ async function enumerate(root: string, target: string, options: DiscoveryOptions
     child.stderr.resume();
     child.once("error", (error: NodeJS.ErrnoException) => {
       startError = true;
-      reject(new Error(error.code === "ENOENT" ? "ripgrep is required. Install rg, then retry pij_search." : "Unable to start source discovery."));
+      reject(new Error(error.code === "ENOENT" ? "ripgrep is required. Install rg, then retry pijev_search." : "Unable to start source discovery."));
     });
     child.once("close", (code) => {
       clearTimeout(timer);

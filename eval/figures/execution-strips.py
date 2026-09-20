@@ -1,16 +1,16 @@
-"""Execution strips: every tool call of every run as one block, Pi above PiJ + Jev per task.
+"""Execution strips: every tool call of every run as one block, Pi above PiJev + Jev per task.
 Reads eval/swebench-agent-results/execution-strips.json (see execution-strips-data.py).
 Usage: execution-strips.py <set> <out.html> [en|zh]   sets: unfamiliar-flash | unfamiliar-pro | django"""
 import json, os, statistics as st, sys
 D = json.load(open(os.path.join(os.path.dirname(__file__), "..", "swebench-agent-results", "execution-strips.json")))[sys.argv[1]]
 tasks = D["tasks"]; LANG = sys.argv[3] if len(sys.argv) > 3 else "en"
-S = {"en": dict(legend=[("search", "search (grep / rg / pij_search)"), ("read", "read"), ("edit", "edit"), ("test", "test"), ("other", "other bash")],
+S = {"en": dict(legend=[("search", "search (grep / rg / pijev_search)"), ("read", "read"), ("edit", "edit"), ("test", "test"), ("other", "other bash")],
         brief="Jev-ranked briefing (not a call; in the first prompt)", frame="white frame = first touch of a file the reference patch edits",
-        sub="One block per tool call, left to right in time; per task the top strip is plain Pi, the bottom PiJ + Jev; each row ends with its call count and outcome",
+        sub="One block per tool call, left to right in time; per task the top strip is plain Pi, the bottom PiJev + Jev; each row ends with its call count and outcome",
         ok="✓ resolved", budget="budget", fail="✗", title=D["title_en"], footnote=D["footnote_en"]),
-     "zh": dict(legend=[("search", "搜索（grep / rg / pij_search）"), ("read", "读文件"), ("edit", "改代码"), ("test", "跑测试"), ("other", "其他 bash")],
+     "zh": dict(legend=[("search", "搜索（grep / rg / pijev_search）"), ("read", "读文件"), ("edit", "改代码"), ("test", "跑测试"), ("other", "其他 bash")],
         brief="Jev 排序的 briefing（不是调用，进第一轮 prompt）", frame="白框 = 这一步第一次碰到目标文件",
-        sub="每格一次工具调用，从左到右按时间；每个任务上面一条是 Pi，下面一条是 PiJ + Jev；行尾是调用总数和结果",
+        sub="每格一次工具调用，从左到右按时间；每个任务上面一条是 Pi，下面一条是 PiJev + Jev；行尾是调用总数和结果",
         ok="✓ 解决", budget="撞预算", fail="✗", title=D["title"], footnote=D["footnote"])}[LANG]
 COL = {"search": "#3987e5", "read": "#199e70", "edit": "#eb6834", "test": "#c98500", "other": "#555a5e"}
 PANEL, BORDER = "#1e1e1e", "#3a3a3a"; INK, INK2, INK3 = "#ededed", "#b4b4b4", "#8c8c8c"; JEV = "#d55181"
@@ -46,7 +46,7 @@ for i, task in enumerate(tasks):
     if i % 2 == 0: o.append(f'<rect x="12" y="{y0-6}" width="{W-24}" height="{ROW}" fill="#ffffff" fill-opacity="0.025"/>')
     for j, arm in enumerate(("pi", "pij")):
         r = task[arm]; cs = r["calls"]; y = y0 + j * (RH + 6); x = X0
-        t(X0 - 8, y + RH - 5, "Pi" if arm == "pi" else "PiJ", INK3 if arm == "pi" else JEV, 12, "500", "end")
+        t(X0 - 8, y + RH - 5, "Pi" if arm == "pi" else "PiJev", INK3 if arm == "pi" else JEV, 12, "500", "end")
         if arm == "pij": o.append(f'<rect x="{x}" y="{y}" width="{BW}" height="{RH}" rx="2" fill="{JEV}"/>'); x += BW + GAP
         seen = False
         for c in cs:

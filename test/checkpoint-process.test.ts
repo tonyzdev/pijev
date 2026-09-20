@@ -15,7 +15,7 @@ async function waitGone(pid: number) {
   assert.equal(alive(pid), false, `Checkpoint process ${pid} must be gone`);
 }
 async function workspace(t: test.TestContext) {
-  const cwd = await mkdtemp("/private/tmp/pij-cpp-");
+  const cwd = await mkdtemp("/private/tmp/pijev-cpp-");
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await Promise.all(["test", ".home", ".tmp"].map((path) => mkdir(join(cwd, path))));
   return cwd;

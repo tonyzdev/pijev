@@ -1,6 +1,7 @@
 import json, math
 SC="/private/tmp/claude-501/-Users-tonglin-Documents-PiJ/b9b0a3fa-096c-42ee-957d-c89d2ec7782c/scratchpad"
-P=json.load(open(f"{SC}/pareto-data.json"))
+import os
+P=json.load(open(os.path.join(os.path.dirname(__file__), "..", "swebench-agent-results", "localization-cost-frontier.json")))
 W,H=1672,800; PANEL,BORDER,GRID="#1e1e1e","#3a3a3a","#2e2e2e"; INK,INK2,INK3="#ededed","#b4b4b4","#8c8c8c"
 COL={"pi":"#9a9a9a","off":"#3987e5","jev":"#d55181"}; FRONT="#9a9a9a"
 SANS="'Helvetica Neue',Helvetica,Arial,'PingFang SC',sans-serif"
@@ -14,7 +15,7 @@ def mark(x,y,col,shape,r=8):
 wid=lambda s,size: sum((size*0.55 if ord(c)<128 else size) for c in s)
 t(22,34,"定位命中率 vs 每任务成本 · 每个点是一个配置（越靠左上越好）· 纵轴是「首步就触达目标文件」的比例，不是任务完成率",INK,19,"600")
 lx=22
-for key,lab in (("pi","Pi（bash grep）"),("off","PiJ 无 Jev（BM25 briefing）"),("jev","PiJ + Jev")):
+for key,lab in (("pi","Pi（bash grep）"),("off","PiJev 无 Jev（BM25 briefing）"),("jev","PiJev + Jev")):
     o.append(f'<rect x="{lx}" y="55" width="12" height="12" rx="2" fill="{COL[key]}"/>'); t(lx+18,66,lab,INK2,15); lx+=18+wid(lab,15)+28
 mark(lx+7,61,INK2,"c",7); t(lx+20,66,"主模型 v4-flash",INK2,15); lx+=20+wid("主模型 v4-flash",15)+28
 mark(lx+7,61,INK2,"d",7); t(lx+20,66,"v4-pro",INK2,15); lx+=20+wid("v4-pro",15)+28

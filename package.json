@@ -1,11 +1,11 @@
 {
-  "name": "pij-agent",
+  "name": "pijev",
   "version": "0.1.0",
   "description": "A terminal coding agent with Jev in the loop: skill selection, code ranking, and failure triage.",
   "type": "module",
   "license": "MIT",
   "bin": {
-    "pij": "bin/pij.mjs"
+    "pijev": "bin/pijev.mjs"
   },
   "files": [
     "bin",
@@ -26,7 +26,7 @@
     "check": "tsc --noEmit",
     "test": "tsx --test test/*.test.ts",
     "eval": "tsx eval/run.ts",
-    "start": "node bin/pij.mjs",
+    "start": "node bin/pijev.mjs",
     "dev": "tsx src/cli.ts",
     "prepack": "npm run build"
   },
@@ -45,11 +45,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tonyzdev/PiJ.git"
+    "url": "git+https://github.com/tonyzdev/pijev.git"
   },
-  "homepage": "https://github.com/tonyzdev/PiJ#readme",
+  "homepage": "https://github.com/tonyzdev/pijev#readme",
   "bugs": {
-    "url": "https://github.com/tonyzdev/PiJ/issues"
+    "url": "https://github.com/tonyzdev/pijev/issues"
   },
   "keywords": [
     "coding-agent",

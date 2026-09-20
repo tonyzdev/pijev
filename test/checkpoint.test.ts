@@ -6,7 +6,7 @@ import test from "node:test";
 import { checkpointSnapshot, changedSources, testCatalog, chooseCheckpointTests, runCheckpointTests } from "../eval/checkpoint.js";
 
 async function workspace(t: test.TestContext) {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-cp-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-cp-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   await Promise.all([mkdir(join(cwd, "src")), mkdir(join(cwd, "test")), mkdir(join(cwd, ".home")), mkdir(join(cwd, ".tmp"))]);
   return cwd;

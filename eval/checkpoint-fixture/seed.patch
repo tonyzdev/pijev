@@ -7,7 +7,7 @@ index 8f06520..89229cb 100644
  import { readFile, stat } from "node:fs/promises";
  import type { ExtensionContext, ExtensionFactory } from "@earendil-works/pi-coding-agent";
  import { Text } from "@earendil-works/pi-tui";
-@@ -20,16 +21,24 @@ export function createPijExtension(config: PijConfig): ExtensionFactory {
+@@ -20,16 +21,24 @@ export function createPijevExtension(config: PijevConfig): ExtensionFactory {
      let run = new AbortController();
      let context: ExtensionContext | undefined;
      let unsubscribeInput: (() => void) | undefined;
@@ -16,7 +16,7 @@ index 8f06520..89229cb 100644
 +    let turnId: string | undefined;
      const journal = new DecisionJournal(config.home);
      const client = new JevClient(config);
-     const update = () => context?.ui.setStatus("pij", cleanText(statusText(config, mode, journal, journal.recent().at(-1))));
+     const update = () => context?.ui.setStatus("pijev", cleanText(statusText(config, mode, journal, journal.recent().at(-1))));
 -    const engineFor = (decisionMode: DecisionMode) => new DecisionEngine(client, async (observation) => { await journal.record(decisionMode, observation); update(); });
 +    const engineFor = (decisionMode: DecisionMode) => new DecisionEngine(client, async (observation) => { await journal.record(decisionMode, observation, { sessionId, turnId }); update(); });
      const signalFor = (signal?: AbortSignal) => signal ? AbortSignal.any([signal, run.signal]) : run.signal;
@@ -32,8 +32,8 @@ index 8f06520..89229cb 100644
 +      turnId = undefined;
        unsubscribeInput?.();
        if (ctx.mode === "tui") {
-         ctx.ui.setTitle("PiJ");
-@@ -67,6 +76,10 @@ export function createPijExtension(config: PijConfig): ExtensionFactory {
+         ctx.ui.setTitle("PiJev");
+@@ -67,6 +76,10 @@ export function createPijevExtension(config: PijevConfig): ExtensionFactory {
      pi.on("before_agent_start", (event, ctx) => {
        context = ctx;
        run.abort(); run = new AbortController(); failuresThisRun = 0; request = event.prompt;
@@ -82,7 +82,7 @@ diff --git a/src/ui.ts b/src/ui.ts
 index 9a7930d..c8bd280 100644
 --- a/src/ui.ts
 +++ b/src/ui.ts
-@@ -33,5 +33,12 @@ export function statusText(config: PijConfig, mode: DecisionMode, journal: Decis
+@@ -33,5 +33,12 @@ export function statusText(config: PijevConfig, mode: DecisionMode, journal: Decis
  
  export function formatDecisions(records: DecisionRecord[]): string {
    if (!records.length) return "No Jev decisions recorded yet.";

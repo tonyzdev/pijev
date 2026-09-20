@@ -3,7 +3,7 @@ index e878e60..6f3acd7 100644
 --- a/README.md
 +++ b/README.md
 @@ -155,3 +155,14 @@ See the [verification record](docs/verification.md), [architecture](docs/design.
- PiJ builds on [Pi](https://github.com/earendil-works/pi) and integrates [TypeSafe's Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev), directly or through [Vercel AI Gateway](https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway). PiJ is an independent project.
+ PiJev builds on [Pi](https://github.com/earendil-works/pi) and integrates [TypeSafe's Jev](https://typesafe.ai/blog/introducing-system-one-models-and-jev), directly or through [Vercel AI Gateway](https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway). PiJev is an independent project.
  
  MIT licensed. Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
 +
@@ -26,7 +26,7 @@ index 89229cb..255f769 100644
  import { readFile, stat } from "node:fs/promises";
  import type { ExtensionContext, ExtensionFactory } from "@earendil-works/pi-coding-agent";
  import { Text } from "@earendil-works/pi-tui";
-@@ -21,24 +20,22 @@ export function createPijExtension(config: PijConfig): ExtensionFactory {
+@@ -21,24 +20,22 @@ export function createPijevExtension(config: PijevConfig): ExtensionFactory {
      let run = new AbortController();
      let context: ExtensionContext | undefined;
      let unsubscribeInput: (() => void) | undefined;
@@ -35,7 +35,7 @@ index 89229cb..255f769 100644
 -    let turnId: string | undefined;
      const journal = new DecisionJournal(config.home);
      const client = new JevClient(config);
-     const update = () => context?.ui.setStatus("pij", cleanText(statusText(config, mode, journal, journal.recent().at(-1))));
+     const update = () => context?.ui.setStatus("pijev", cleanText(statusText(config, mode, journal, journal.recent().at(-1))));
 -    const engineFor = (decisionMode: DecisionMode) => new DecisionEngine(client, async (observation) => { await journal.record(decisionMode, observation, { sessionId, turnId }); update(); });
 +    const engineFor = (decisionMode: DecisionMode, ctx: ExtensionContext) => {
 +      // A run can consume several steering/follow-up messages. Snapshot the
@@ -57,8 +57,8 @@ index 89229cb..255f769 100644
 -      turnId = undefined;
        unsubscribeInput?.();
        if (ctx.mode === "tui") {
-         ctx.ui.setTitle("PiJ");
-@@ -76,10 +73,6 @@ export function createPijExtension(config: PijConfig): ExtensionFactory {
+         ctx.ui.setTitle("PiJev");
+@@ -76,10 +73,6 @@ export function createPijevExtension(config: PijevConfig): ExtensionFactory {
      pi.on("before_agent_start", (event, ctx) => {
        context = ctx;
        run.abort(); run = new AbortController(); failuresThisRun = 0; request = event.prompt;
@@ -69,7 +69,7 @@ index 89229cb..255f769 100644
        skills = event.systemPromptOptions.skills ?? [];
        skillAdvice = undefined;
        skillPending = mode !== "off" && !/^\/skill:|<skill(?:\s|>)/.test(event.prompt);
-@@ -93,7 +86,7 @@ export function createPijExtension(config: PijConfig): ExtensionFactory {
+@@ -93,7 +86,7 @@ export function createPijevExtension(config: PijevConfig): ExtensionFactory {
        if (skillPending && ctx.signal && !signal.aborted) {
          skillPending = false;
          const currentMode = mode;
@@ -78,7 +78,7 @@ index 89229cb..255f769 100644
            if ((await stat(path)).size > 200_000) throw new Error("Skill too large for advisory inspection.");
            return readFile(path, "utf8");
          }, signal);
-@@ -111,7 +104,7 @@ export function createPijExtension(config: PijConfig): ExtensionFactory {
+@@ -111,7 +104,7 @@ export function createPijevExtension(config: PijevConfig): ExtensionFactory {
        const signal = signalFor(ctx.signal);
        const currentMode = mode;
        const output = event.content.filter((part) => part.type === "text").map((part) => part.text).join("\n");
@@ -87,7 +87,7 @@ index 89229cb..255f769 100644
        if (currentMode !== "assist" || mode !== currentMode || signal.aborted || !suggestion) return;
        return { content: [...event.content, { type: "text" as const, text: `\n${suggestion}` }] };
      });
-@@ -130,13 +123,14 @@ export function createPijExtension(config: PijConfig): ExtensionFactory {
+@@ -130,13 +123,14 @@ export function createPijevExtension(config: PijevConfig): ExtensionFactory {
        }),
        async execute(_id, params, signal, onUpdate, ctx) {
          context = ctx;

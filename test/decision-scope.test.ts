@@ -7,13 +7,13 @@ import { join } from "node:path";
 import test from "node:test";
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
 import { loadConfig } from "../src/config.js";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 import { readRecentDecisions } from "../src/telemetry.js";
 
 const query = "Where does the session token refresh happen?";
 
 async function scopedSession(t: test.TestContext) {
-  const root = await mkdtemp(join(tmpdir(), "pij-decision-scope-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-decision-scope-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const cwd = join(root, "project");
   const home = join(root, "agent");
@@ -42,7 +42,7 @@ async function scopedSession(t: test.TestContext) {
     }
     modelCalls++;
     const delta = modelCalls <= 2
-      ? { role: "assistant", tool_calls: [{ index: 0, id: `search_${modelCalls}`, type: "function", function: { name: "pij_search", arguments: JSON.stringify({ query }) } }] }
+      ? { role: "assistant", tool_calls: [{ index: 0, id: `search_${modelCalls}`, type: "function", function: { name: "pijev_search", arguments: JSON.stringify({ query }) } }] }
       : { role: "assistant", content: "Search complete." };
     res.writeHead(200, { "Content-Type": "text/event-stream" });
     for (const [chunk, finish] of [[delta, null], [{}, modelCalls <= 2 ? "tool_calls" : "stop"]]) {
@@ -57,16 +57,16 @@ async function scopedSession(t: test.TestContext) {
   assert.ok(address && typeof address === "object");
   const baseUrl = `http://127.0.0.1:${address.port}/v1`;
   const runtime = await ModelRuntime.create({ authPath: join(home, "auth.json"), modelsPath: null, refreshOnCreate: false });
-  runtime.registerProvider("pij-fixture", { baseUrl, api: "openai-completions", apiKey: "fixture", models: [{ id: "fixture", name: "fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 32000, maxTokens: 512 }] });
+  runtime.registerProvider("pijev-fixture", { baseUrl, api: "openai-completions", apiKey: "fixture", models: [{ id: "fixture", name: "fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 32000, maxTokens: 512 }] });
   const settings = SettingsManager.inMemory({ retry: { enabled: false }, compaction: { enabled: false } });
   const resources = new DefaultResourceLoader({
     cwd, agentDir: home, settingsManager: settings, noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
     agentsFilesOverride: () => ({ agentsFiles: [] }), skillsOverride: () => ({ skills: [], diagnostics: [] }),
-    extensionFactories: [createPijExtension(loadConfig({ PIJ_HOME: home, PIJ_MODE: "assist", PIJ_SOURCE_BRIEFING: "0", TYPESAFE_API_KEY: "fixture", PIJ_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJ_JEV_TIMEOUT_MS: "5000" }))],
+    extensionFactories: [createPijevExtension(loadConfig({ PIJEV_HOME: home, PIJEV_MODE: "assist", PIJEV_SOURCE_BRIEFING: "0", TYPESAFE_API_KEY: "fixture", PIJEV_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJEV_JEV_TIMEOUT_MS: "5000" }))],
   });
   await resources.reload();
   assert.deepEqual(resources.getExtensions().errors, []);
-  const { session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("pij-fixture", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory() });
+  const { session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("pijev-fixture", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory() });
   t.after(() => session.dispose());
   await session.bindExtensions({});
   return { session, home, rankEntered, release: () => release(), jevCalls: () => jevCalls, modelCalls: () => modelCalls };

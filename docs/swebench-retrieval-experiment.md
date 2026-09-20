@@ -2,7 +2,7 @@
 
 ## Why this experiment exists
 
-Every prior experiment in this repository ranked files inside PiJ itself (35 TypeScript
+Every prior experiment in this repository ranked files inside PiJev itself (35 TypeScript
 files, 3,678 lines) or the eval fixtures (17–21 files, ~120 KB). At that size there is no
 retrieval problem to solve: `rg` returns the whole project and the main model can read it
 all. Those experiments could not have detected a ranking benefit even if one existed, which
@@ -90,11 +90,11 @@ is now worth spending, because stage 1 says there is something to convert.
 
 ---
 
-# Applying the result to PiJ's own pipeline
+# Applying the result to PiJev's own pipeline
 
 ## What was wrong
 
-Running PiJ's shipped `discoverCode` against django at four of these instances showed the
+Running PiJev's shipped `discoverCode` against django at four of these instances showed the
 gold file reaching the candidate pool **1 time out of 5**. Jev was being asked to rank 32
 windows that usually did not contain the answer, so its ranking quality was irrelevant.
 
@@ -148,7 +148,7 @@ it to 1. Neither stage alone would have delivered it.
 
 Cost: 12 Jev requests, 171k input tokens, 0 fallbacks. Discovery ~3.9 s and ranking ~2.7 s
 per query over 5,900 files — slower than before, and worth measuring against a narrower
-`pij_search` question than a pasted issue body.
+`pijev_search` question than a pasted issue body.
 
 ## Caveats
 
@@ -161,13 +161,13 @@ per query over 5,900 files — slower than before, and worth measuring against a
 
 ---
 
-# Stage 1 rerun: the full sample through PiJ's own pipeline
+# Stage 1 rerun: the full sample through PiJev's own pipeline
 
 The four-instance rerun above showed the pipeline defects were fixed. This repeats the whole
 20-instance sample through the shipped `discoverCode` + `DecisionEngine.rankCode`
 (`eval/swebench-pipeline.ts`), so the numbers describe the product rather than a harness.
 
-| metric | PiJ BM25 | PiJ + Jev | (harness BM25) | (harness + Jev) |
+| metric | PiJev BM25 | PiJev + Jev | (harness BM25) | (harness + Jev) |
 |---|---:|---:|---:|---:|
 | recall@1 | 0.150 | **0.690** | 0.250 | 0.740 |
 | recall@5 | 0.450 | **0.840** | 0.575 | 0.905 |
@@ -175,7 +175,7 @@ The four-instance rerun above showed the pipeline defects were fixed. This repea
 | recall@20 | 0.740 | **0.907** | 0.742 | 0.960 |
 | recall@100 (shortlist ceiling) | 0.914 | — | 0.967 | — |
 
-| | PiJ BM25 | PiJ + Jev |
+| | PiJev BM25 | PiJev + Jev |
 |---|---:|---:|
 | median rank of first gold file | 6 | **1** |
 | gold file at rank 1 | 3/20 | **16/20** |
@@ -204,8 +204,8 @@ than tuned away. Default is now 0.1, overridable per call.
 
 ## The residual gap is corpus composition, not ranking
 
-PiJ still trails the standalone harness (recall@10 0.905 vs 0.957; ceiling 0.914 vs 0.967).
-The harness restricted its corpus to `.py` files — 2,464 per django instance. PiJ cannot
+PiJev still trails the standalone harness (recall@10 0.905 vs 0.957; ceiling 0.914 vs 0.967).
+The harness restricted its corpus to `.py` files — 2,464 per django instance. PiJev cannot
 assume a language and scans every text file, ~5,980 per django instance, which both adds
 competing documents and distorts the idf statistics that BM25 depends on. The reranking
 stage is not what differs.

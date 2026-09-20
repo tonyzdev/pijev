@@ -42,7 +42,7 @@ is a reading-order suggestion, not preloaded source excerpts; it may fail to
 remove work or be ignored. Compare actual navigation and completed delivery,
 not just whether expected files sort to the top.
 
-Use actual `bin/pij.mjs`, Sonnet 4.6, medium thinking, 64 admitted requests,
+Use actual `bin/pijev.mjs`, Sonnet 4.6, medium thinking, 64 admitted requests,
 2.5 million reported tokens, 16,384 output tokens/request and 600 seconds/run.
 Product Jev decisions, source briefing, dependency evidence and automatic
 checkpoints remain off. Launch lexical then Jev in pair one; Jev then lexical
@@ -130,7 +130,7 @@ Main cost estimates exclude Jev fees and are not billing receipts.
 - **Lexical 2:** all nineteen new tests call local copies of the parser and
   branch resolver. They never import product implementation, despite comments
   claiming extension/factory coverage. A separate isolation probe copies only
-  this test file into an empty directory with no PiJ source: all 19 still pass.
+  this test file into an empty directory with no PiJev source: all 19 still pass.
   Thus runtime behavior passes, but appropriate product regression coverage is
   missing. The original patch is retained without repair.
 - **Jev 2:** eighteen tests invoke the production branch reader and two use

@@ -39,7 +39,7 @@ Export `discoverCode(options: { cwd: string; query: string; path?: string; glob?
 
 Files: `src/extension.ts`, `eval/run.ts`, `test/integration.test.ts`, `package.json`, and experiment documentation.
 
-- [x] Make `patterns` optional in pij_search; absence invokes discoverCode, then existing Jev ranking. Both off and assist use the same candidates; off uses deterministic ordering.
+- [x] Make `patterns` optional in pijev_search; absence invokes discoverCode, then existing Jev ranking. Both off and assist use the same candidates; off uses deterministic ordering.
 - [x] Verify new tool mode in real Pi runtime, cancellation, observe/off behavior and fallback. Preserve existing literal search behavior.
 - [x] Build a bounded SDK runner selecting a verified available main model, with explicit mode/task/round/time settings, isolated settings and process environment.
 - [x] Run baseline tasks, inspect failures and compare paired runs. Revise the experiment when the evidence contradicts it.

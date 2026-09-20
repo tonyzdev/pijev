@@ -11,7 +11,7 @@ import type { Placement } from "../eval/placement.js";
 for (const scenario of [...(["baseline", "output-local", "output-jev", "finish-local", "finish-jev"] as Placement[]).map(policy => ({ policy, bashRead: false, deletion: false })), { policy: "output-jev" as Placement, bashRead: true, deletion: false }, { policy: "finish-jev" as Placement, bashRead: false, deletion: true }]) {
     const { policy, bashRead, deletion } = scenario;
     test(`actual Pi placement ${policy} changes only its assigned boundary (bash=${bashRead}, deletion=${deletion})`, { timeout: 12000 }, async (t) => {
-        const cwd = await mkdtemp(join(tmpdir(), "pij-placement-test-"));
+        const cwd = await mkdtemp(join(tmpdir(), "pijev-placement-test-"));
         t.after(() => rm(cwd, { recursive: true, force: true }));
         await mkdir(join(cwd, "src"));
         await mkdir(join(cwd, "test"));

@@ -21,7 +21,7 @@ Jev scores all 21 files in about 2.1–2.4 seconds. Jev-1 reaches its token budg
 and misses tree restoration (7/8); Jev-2 passes all checks and authors meaningful
 regressions. Both lexical candidates pass behavior, but one omits new tests and
 the other's 19 tests exercise only locally copied logic, confirmed by passing
-in an empty directory without PiJ source. Only Jev-2 completes the full task;
+in an empty directory without PiJev source. Only Jev-2 completes the full task;
 first-edit and efficiency signals do not repeat consistently. Full manifests,
 original patches, all independent checks, review findings and replay hashes are
 published. This remains evaluator-only and establishes no general advantage.
@@ -63,12 +63,12 @@ Jev selection accuracy or a completed repair.
 
 ## 2026-09-18: optional question-driven search
 
-Both constructed document-lifecycle repair runs had the same 240-second wall-clock limit and requested 28 model requests / 150,000 tokens. Neither called `pij_search`; both read 13 files. A fresh independent sandboxed acceptance run found 4 of 11 invariants passing in each workspace, including different subsets. Neither completed the task.
+Both constructed document-lifecycle repair runs had the same 240-second wall-clock limit and requested 28 model requests / 150,000 tokens. Neither called `pijev_search`; both read 13 files. A fresh independent sandboxed acceptance run found 4 of 11 invariants passing in each workspace, including different subsets. Neither completed the task.
 
 | Configuration | Read calls | Search calls | Main input/output tokens | Estimated main cost | Acceptance |
 | --- | ---: | ---: | --- | ---: | --- |
 | Plain Pi | 13 | 0 | 117,248 / 18,713 | $0.0811 | 4/11; failed |
-| PiJ assist, optional search | 13 | 0 | 156,915 / 5,646 | $0.0852 | 4/11; failed |
+| PiJev assist, optional search | 13 | 0 | 156,915 / 5,646 | $0.0852 | 4/11; failed |
 
 Assist recorded two failure-triage evaluations (one network call and one cache hit), 763 ms recorded wait, and no source ranking. This does not demonstrate a quality or efficiency benefit. There is one run per condition, and no corresponding off run; do not interpret the numerical difference as a causal Jev effect.
 
@@ -80,9 +80,9 @@ Assist recorded two failure-triage evaluations (one network call and one cache h
 
 ## Real CLI task: associate decisions with Pi sessions and user turns
 
-The actual `pij` executable was run against a disposable clone of public PiJ revision `4e1cdef`, with a task to add real session and per-user-turn identity, backward-compatible journals, presentation, documentation, and multi-turn runtime tests. Personal context and skills were disabled. The agent could execute file and shell tools inside the task workspace.
+The actual `pijev` executable was run against a disposable clone of public PiJev revision `4e1cdef`, with a task to add real session and per-user-turn identity, backward-compatible journals, presentation, documentation, and multi-turn runtime tests. Personal context and skills were disabled. The agent could execute file and shell tools inside the task workspace.
 
-It reached 70 assistant messages before the 360-second deadline, with 27 bash calls, 29 reads and 14 edits; the first edit was tool call 36. It never called `pij_search`. Main-model usage was 2,491,376 input and 12,430 output tokens, approximately $1.2606 at pinned catalog rates. The failed budget hook makes this unsuitable for a bounded paired comparison.
+It reached 70 assistant messages before the 360-second deadline, with 27 bash calls, 29 reads and 14 edits; the first edit was tool call 36. It never called `pijev_search`. Main-model usage was 2,491,376 input and 12,430 output tokens, approximately $1.2606 at pinned catalog rates. The failed budget hook makes this unsuitable for a bounded paired comparison.
 
 The generated patch creates a random identifier instead of reading Pi's actual session ID, and uses per-model-loop `turn_start` indices instead of stable per-user-prompt identity. It also changes the journal filename regex incorrectly. Independent telemetry/runtime checks failed 5 of 7 tests, consistent with the broken filename matching. The task was not accepted and the patch was not merged. A real CLI run is evidence of exercising the product, not proof that the resulting changes are correct.
 
@@ -117,8 +117,8 @@ At clean revision `6cfd540`, both document-lifecycle runs used initial evidence,
 
 | Configuration | Acceptance | Read calls | Main input/output tokens | Estimated main cost | Termination |
 | --- | --- | ---: | --- | ---: | --- |
-| PiJ off, initial evidence | 4/11; failed | 12 | 114,241 / 35,915 | $0.1002 | 360-second deadline |
-| PiJ assist, initial evidence | 4/11; failed | 17 | 402,744 / 26,201 | $0.2328 | 360-second deadline |
+| PiJev off, initial evidence | 4/11; failed | 12 | 114,241 / 35,915 | $0.1002 | 360-second deadline |
+| PiJev assist, initial evidence | 4/11; failed | 17 | 402,744 / 26,201 | $0.2328 | 360-second deadline |
 
 Assist made three successful Jev requests (initial ranking and two failure triages), totaling 2,383 ms recorded wait and 8,687 / 454 input/output tokens. Both failed independent cancellation, stale-completion, deep-copy, TTL and listener-cleanup checks. Traces show syntax repair and cross-module interface errors; the off run also exhausted a response's output allowance while writing a test. Neither used the optional search tool. One run per condition cannot establish a general regression, but it provides no support for a speed, cost or acceptance benefit. Better reference-file overlap did not translate into a correct repair here.
 
@@ -137,11 +137,11 @@ At clean revision `e69426d`, `anthropic/claude-sonnet-4.6` ran both tasks with t
 | Queue pagination | off | 12/12 | 14 / 12 | 197,097 | 200.7 s | $0.3536 |
 | Queue pagination | assist | 12/12 | 23 / 10 | 300,986 | 284.1 s | $0.4331 |
 
-Assist recorded three successful Jev requests in each task: initial ranking plus two failure triages. Document wait totaled 2,824 ms, with 7,544 / 454 Jev input/output tokens; queue wait totaled 1,878 ms, with 8,698 / 436 tokens. The optional `pij_search` tool was never invoked in these runs either.
+Assist recorded three successful Jev requests in each task: initial ranking plus two failure triages. Document wait totaled 2,824 ms, with 7,544 / 454 Jev input/output tokens; queue wait totaled 1,878 ms, with 8,698 / 436 tokens. The optional `pijev_search` tool was never invoked in these runs either.
 
 The document assist run was faster and cheaper; the queue assist run was slower and more expensive. Traces show both configurations still reading most relevant source files and repairing their own tests or implementations. The source snapshot did not consistently remove investigation. Assist also changes failure advice, so this experiment does not isolate ranking from triage. Model sampling, generated test differences, shared provider load and single-run variance prevent attributing either difference to a particular Jev decision. No general efficiency advantage is established.
 
-The real `pij` CLI also ran with Sonnet against the pinned public PiJ task. It stopped at the token budget after 21 admitted requests, 131.8 seconds and 691,827 reported tokens (including 604,530 cache-read tokens); estimated main cost was $0.5746. Two successful Jev evaluations waited 1,762 ms. The partial patch correctly obtains the actual session ID and adds presentation fields. An independent check, all 40 existing tests, and build passed, but it adds none of the requested new tests or documentation.
+The real `pijev` CLI also ran with Sonnet against the pinned public PiJev task. It stopped at the token budget after 21 admitted requests, 131.8 seconds and 691,827 reported tokens (including 604,530 cache-read tokens); estimated main cost was $0.5746. Two successful Jev evaluations waited 1,762 ms. The partial patch correctly obtains the actual session ID and adds presentation fields. An independent check, all 40 existing tests, and build passed, but it adds none of the requested new tests or documentation.
 
 Independent review identified that its generated turn UUID changes only in `before_agent_start`, which queued steering/follow-up messages bypass. A separate real-SDK regression, adapted to the candidate's `turnId` field and legacy literal-search API, confirmed two consumed user messages receive the same turn ID. Existing tests passing therefore does not establish feature acceptance. The task is incomplete and the generated patch was not merged.
 
@@ -155,9 +155,9 @@ The [frozen source-only probe](evidence-probe.md) tests a second possible use: f
 
 ### Actual CLI recovery pair with and without Jev's gap hints
 
-Both runs used the actual `bin/pij.mjs`, clean development revision `28018e7`, and separate clones of public baseline `4e1cdef` with the exact same partial Sonnet-generated patch from the earlier real CLI task. The seed patch's SHA-256 was `64e7c4936d42dcbb67df4d1050bbbb4ed6d2852fd59c542d500bf4e70ed03772`. Neither clone received the evaluator's failing steering test during generation. Source/build digests remained unchanged throughout both runs.
+Both runs used the actual `bin/pijev.mjs`, clean development revision `28018e7`, and separate clones of public baseline `4e1cdef` with the exact same partial Sonnet-generated patch from the earlier real CLI task. The seed patch's SHA-256 was `64e7c4936d42dcbb67df4d1050bbbb4ed6d2852fd59c542d500bf4e70ed03772`. Neither clone received the evaluator's failing steering test during generation. Source/build digests remained unchanged throughout both runs.
 
-This is a fresh-session recovery pilot, **not an end-to-end implementation of an automatic evidence checker**. The normal PiJ mode and source briefing were off in both conditions, isolating the additional prompt advisory from skill selection, ranking and failure triage. The common task was to complete the existing partial observability feature, documentation and meaningful runtime tests. Both prompts warned that existing tests did not establish acceptance.
+This is a fresh-session recovery pilot, **not an end-to-end implementation of an automatic evidence checker**. The normal PiJev mode and source briefing were off in both conditions, isolating the additional prompt advisory from skill selection, ranking and failure triage. The common task was to complete the existing partial observability feature, documentation and meaningful runtime tests. Both prompts warned that existing tests did not establish acceptance.
 
 The hint condition additionally received three source-only missing-test judgments from the first repetition of the diagnostic probe on the actual seed. Selection used `not_exercised`, without threshold tuning or resampling: shared per-user-turn identity, a different identity after a later user message, and a fresh identity for another session. The fourth judgment, incorrectly reporting existing multi-user-prompt test coverage, was not sent as a gap. The advisory explicitly described the check as fallible and required validating the whole task. Jev had already been called in the diagnostic; its request cost/wait is excluded from the recovery figures below.
 

@@ -10,7 +10,7 @@ import { firstGoldRank, goldFiles, recallAt } from "./swebench-retrieval.js";
 
 const exec = promisify(execFile);
 
-/** Same instances and ground truth as swebench-retrieval.ts, but driving PiJ's
+/** Same instances and ground truth as swebench-retrieval.ts, but driving PiJev's
  * shipped discovery and ranking instead of a standalone harness. */
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { values } = parseArgs({ options: {
@@ -18,7 +18,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     out: { type: "string", default: "swebench-pipeline-results" },
   } });
   const sample = JSON.parse(await readFile(values.sample!, "utf8")) as { repo: string; instance_id: string; base_commit: string; problem_statement: string; patch: string; difficulty: string }[];
-  const client = new JevClient({ ...loadConfig({ ...process.env, PIJ_JEV_PROVIDER: "vercel" }), timeoutMs: 30_000 });
+  const client = new JevClient({ ...loadConfig({ ...process.env, PIJEV_JEV_PROVIDER: "vercel" }), timeoutMs: 30_000 });
   await mkdir(values.out!, { recursive: true });
   const records = [];
   for (const inst of sample) {
@@ -67,6 +67,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       + ` | bm25 r@10=${rec.bm25.recall[10]!.toFixed(2)} rank=${rec.bm25.firstGoldRank ?? "-"}`
       + ` | jev r@10=${rec.jev.recall[10]!.toFixed(2)} rank=${rec.jev.firstGoldRank ?? "-"}`
       + ` | ${decisions.length}req ${discoverMs}+${rankMs}ms`);
-    await writeFile(join(values.out!, "results.json"), JSON.stringify({ pipeline: "pij", records }, null, 1));
+    await writeFile(join(values.out!, "results.json"), JSON.stringify({ pipeline: "pijev", records }, null, 1));
   }
 }

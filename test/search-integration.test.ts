@@ -8,7 +8,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
 import { loadConfig, type DecisionMode, type JevProvider } from "../src/config.js";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 import { readRecentDecisions } from "../src/telemetry.js";
 
 const query = "Which component refreshes the session token?";
@@ -23,7 +23,7 @@ const sourceFiles = {
 type RankState = { query: string; candidates: Record<string, { path: string; excerpt: string }> };
 
 async function searchSession(t: test.TestContext, mode: DecisionMode, provider: JevProvider, outcome: "success" | "failure" | "held" = "success") {
-  const root = await mkdtemp(join(tmpdir(), "pij-search-runtime-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-search-runtime-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const cwd = join(root, "project");
   const home = join(root, "agent"); // Decision journals must not enter the source candidate set.
@@ -57,7 +57,7 @@ async function searchSession(t: test.TestContext, mode: DecisionMode, provider: 
       return;
     }
     modelCalls++;
-    const call = modelCalls === 1 ? { name: "pij_search", arguments: { query, limit: 20 } } : undefined;
+    const call = modelCalls === 1 ? { name: "pijev_search", arguments: { query, limit: 20 } } : undefined;
     const delta = call
       ? { role: "assistant", tool_calls: [{ index: 0, id: "source_search", type: "function", function: { name: call.name, arguments: JSON.stringify(call.arguments) } }] }
       : { role: "assistant", content: "Search complete." };
@@ -73,22 +73,22 @@ async function searchSession(t: test.TestContext, mode: DecisionMode, provider: 
   const address = http.address();
   assert.ok(address && typeof address === "object");
   const baseUrl = `http://127.0.0.1:${address.port}/v1`;
-  const config = loadConfig({ PIJ_HOME: home, PIJ_MODE: mode, PIJ_SOURCE_BRIEFING: "0", PIJ_JEV_PROVIDER: provider, TYPESAFE_API_KEY: "fixture", AI_GATEWAY_API_KEY: "fixture", PIJ_JEV_ENDPOINT: provider === "vercel" ? baseUrl : `${baseUrl}/systemone`, PIJ_JEV_TIMEOUT_MS: "5000" });
+  const config = loadConfig({ PIJEV_HOME: home, PIJEV_MODE: mode, PIJEV_SOURCE_BRIEFING: "0", PIJEV_JEV_PROVIDER: provider, TYPESAFE_API_KEY: "fixture", AI_GATEWAY_API_KEY: "fixture", PIJEV_JEV_ENDPOINT: provider === "vercel" ? baseUrl : `${baseUrl}/systemone`, PIJEV_JEV_TIMEOUT_MS: "5000" });
   const runtime = await ModelRuntime.create({ authPath: join(home, "auth.json"), modelsPath: null, refreshOnCreate: false });
-  runtime.registerProvider("pij-fixture", { baseUrl, api: "openai-completions", apiKey: "fixture", models: [{ id: "fixture", name: "fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 32000, maxTokens: 512 }] });
+  runtime.registerProvider("pijev-fixture", { baseUrl, api: "openai-completions", apiKey: "fixture", models: [{ id: "fixture", name: "fixture", reasoning: false, input: ["text"], cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, contextWindow: 32000, maxTokens: 512 }] });
   const settings = SettingsManager.inMemory({ retry: { enabled: false }, compaction: { enabled: false } });
   const resources = new DefaultResourceLoader({
     cwd, agentDir: home, settingsManager: settings, noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
     agentsFilesOverride: () => ({ agentsFiles: [] }), skillsOverride: () => ({ skills: [], diagnostics: [] }),
-    extensionFactories: [createPijExtension(config)],
+    extensionFactories: [createPijevExtension(config)],
   });
   await resources.reload();
   assert.deepEqual(resources.getExtensions().errors, []);
-  const { session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("pij-fixture", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory() });
+  const { session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("pijev-fixture", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory() });
   t.after(() => session.dispose());
   await session.bindExtensions({});
   function searchResult() {
-    const result = session.messages.find((message) => message.role === "toolResult" && message.toolName === "pij_search");
+    const result = session.messages.find((message) => message.role === "toolResult" && message.toolName === "pijev_search");
     assert.ok(result?.role === "toolResult");
     assert.equal(result.isError, false);
     const text = result.content.filter((part) => part.type === "text").map((part) => part.text).join("\n");
@@ -136,7 +136,7 @@ for (const provider of ["typesafe", "vercel"] satisfies JevProvider[]) {
   });
 }
 
-test("session.abort cancels pij_search while Jev ranking is in flight", { timeout: 10000 }, async (t) => {
+test("session.abort cancels pijev_search while Jev ranking is in flight", { timeout: 10000 }, async (t) => {
   const fixture = await searchSession(t, "assist", "typesafe", "held");
   const prompt = fixture.session.prompt(query);
   await fixture.rankEntered;
@@ -150,7 +150,7 @@ test("session.abort cancels pij_search while Jev ranking is in flight", { timeou
   assert.equal(fixture.session.isIdle, true);
 });
 
-test("session.abort cancels pij_search during source enumeration and terminates rg", { timeout: 10000 }, async (t) => {
+test("session.abort cancels pijev_search during source enumeration and terminates rg", { timeout: 10000 }, async (t) => {
   const fixture = await searchSession(t, "off", "typesafe");
   const bin = join(fixture.root, "bin");
   await mkdir(bin);

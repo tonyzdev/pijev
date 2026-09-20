@@ -8,12 +8,12 @@ import test from "node:test";
 
 const exec = promisify(execFile);
 test("help and doctor work without model credentials, do not expose keys or create sessions", async (t) => {
-  const home = await mkdtemp(join(tmpdir(), "pij-cli-"));
+  const home = await mkdtemp(join(tmpdir(), "pijev-cli-"));
   t.after(() => rm(home, { recursive: true, force: true }));
-  const env = { ...process.env, PIJ_HOME: home, TYPESAFE_API_KEY: "fixture-do-not-print", OPENAI_API_KEY: "", ANTHROPIC_API_KEY: "" };
+  const env = { ...process.env, PIJEV_HOME: home, TYPESAFE_API_KEY: "fixture-do-not-print", OPENAI_API_KEY: "", ANTHROPIC_API_KEY: "" };
   const cli = resolve("src/cli.ts");
   const help = await exec(process.execPath, ["--import", "tsx", cli, "--help"], { env });
-  assert.match(help.stdout, /PiJ/);
+  assert.match(help.stdout, /PiJev/);
   assert.match(help.stdout, /observe/);
   const doctor = await exec(process.execPath, ["--import", "tsx", cli, "doctor", "--json"], { env });
   const data = JSON.parse(doctor.stdout) as { jev: { keyPresent: boolean }; home: string };
@@ -24,15 +24,15 @@ test("help and doctor work without model credentials, do not expose keys or crea
 });
 
 test("invalid modes fail with an actionable error", async () => {
-  await assert.rejects(exec(process.execPath, ["--import", "tsx", resolve("src/cli.ts"), "--jev-mode", "invalid"], { env: { ...process.env, PIJ_MODE: "assist" } }), (error: unknown) => {
+  await assert.rejects(exec(process.execPath, ["--import", "tsx", resolve("src/cli.ts"), "--jev-mode", "invalid"], { env: { ...process.env, PIJEV_MODE: "assist" } }), (error: unknown) => {
     return error instanceof Error && "stderr" in error && String(error.stderr).includes("assist, observe, or off");
   });
 });
 
 test("doctor recognizes Gateway credentials for both Jev and the coding model without printing them", async (t) => {
-  const home = await mkdtemp(join(tmpdir(), "pij-gateway-cli-"));
+  const home = await mkdtemp(join(tmpdir(), "pijev-gateway-cli-"));
   t.after(() => rm(home, { recursive: true, force: true }));
-  const env = { ...process.env, PIJ_HOME: home, PIJ_JEV_PROVIDER: "vercel", TYPESAFE_API_KEY: "", AI_GATEWAY_API_KEY: "fixture-gateway-secret" };
+  const env = { ...process.env, PIJEV_HOME: home, PIJEV_JEV_PROVIDER: "vercel", TYPESAFE_API_KEY: "", AI_GATEWAY_API_KEY: "fixture-gateway-secret" };
   const result = await exec(process.execPath, ["--import", "tsx", resolve("src/cli.ts"), "doctor", "--json"], { env });
   const data = JSON.parse(result.stdout);
   assert.equal(data.jev.provider, "vercel");

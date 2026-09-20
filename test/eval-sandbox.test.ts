@@ -8,7 +8,7 @@ import test from "node:test";
 import { checkWorkspacePath, sandboxProfile, shellEnvironment } from "../eval/sandbox.js";
 
 test("evaluation tools reject paths and symlinks outside the workspace", async (t) => {
-  const root = await mkdtemp(join(tmpdir(), "pij-sandbox-test-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-sandbox-test-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const cwd = join(root, "workspace");
   await mkdir(cwd);
@@ -30,7 +30,7 @@ test("evaluation shell inherits no provider secrets or user startup configuratio
 });
 
 test("macOS benchmark sandbox allows workspace work and rejects protected reads/outside writes", { skip: process.platform !== "darwin" }, async (t) => {
-  const root = await mkdtemp(join(tmpdir(), "pij-sandbox-test-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-sandbox-test-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   const cwd = join(root, "workspace");
   const protectedDir = join(root, "private");
@@ -48,7 +48,7 @@ test("macOS benchmark sandbox allows workspace work and rejects protected reads/
 
 test("real-repository sandbox can explicitly allow loopback fixture servers", { skip: process.platform !== "darwin" }, async (t) => {
   const { realpath } = await import("node:fs/promises");
-  const cwd = await realpath(await mkdtemp(join(tmpdir(), "pij-loopback-test-")));
+  const cwd = await realpath(await mkdtemp(join(tmpdir(), "pijev-loopback-test-")));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   const program = `const http=require('node:http'); const server=http.createServer((req,res)=>res.end('fixture')); server.listen(0,'127.0.0.1',async()=>{console.log(await (await fetch('http://127.0.0.1:'+server.address().port)).text());server.closeAllConnections();server.close();});`;
   const run = (allowLoopback: boolean) => promisify(execFile)("/usr/bin/sandbox-exec", ["-p", sandboxProfile(cwd, [], { allowLoopback }), process.execPath, "-e", program], { cwd, env: shellEnvironment(cwd), timeout: 5000 });
@@ -58,7 +58,7 @@ test("real-repository sandbox can explicitly allow loopback fixture servers", { 
 
 test("candidate shells cannot read sibling candidates or reference trees in temporary directories", { skip: process.platform !== "darwin" }, async(t)=>{
   for (const temporaryRoot of ["/private/tmp", tmpdir()]) {
-    const root=await realpath(await mkdtemp(join(temporaryRoot,"pij-peer-isolation-")));
+    const root=await realpath(await mkdtemp(join(temporaryRoot,"pijev-peer-isolation-")));
     t.after(()=>rm(root,{recursive:true,force:true}));
     const cwd=join(root,"candidate"), peer=join(root,"reference");
     await mkdir(cwd);await mkdir(peer);

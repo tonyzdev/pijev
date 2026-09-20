@@ -7,7 +7,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { createAgentSession, createAgentSessionRuntime, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager, type AgentSession, type CreateAgentSessionRuntimeFactory, type ResourceLoader } from "@earendil-works/pi-coding-agent";
 import { loadConfig, type DecisionMode } from "../src/config.js";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 
 type PlannedTool = { name: string; args: Record<string, unknown> };
 function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>((done) => { resolve = done; }); return { promise, resolve }; }
@@ -20,7 +20,7 @@ async function within<T>(promise: Promise<T>, message: string): Promise<T> {
 // Only the model/Jev HTTP endpoints and UI sink are fakes. Commands, extension
 // dispatch, sessions, state storage, branch navigation and replacements are SDK.
 async function fixture(t: test.TestContext, initialMode: DecisionMode = "assist", withSkills = false) {
-  const root = await mkdtemp(join(tmpdir(), "pij-sm-fixture-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-sm-fixture-"));
   const cwd = join(root, "project"), home = join(root, "agent"), sessionDir = join(root, "sessions");
   await mkdir(cwd);
   await writeFile(join(cwd, "a.ts"), "export const token = 'unrelated';\n");
@@ -82,12 +82,12 @@ async function fixture(t: test.TestContext, initialMode: DecisionMode = "assist"
         cwd, agentDir: home, settingsManager: settings, noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
         agentsFilesOverride: () => ({ agentsFiles: [] }),
         skillsOverride: () => ({ skills: withSkills ? [{ name: "tokens", description: "Inspect tokens", filePath: skillPath, baseDir: root, sourceInfo: { path: skillPath, source: "fixture", scope: "temporary", origin: "top-level" }, disableModelInvocation: false }] : [], diagnostics: [] }),
-        extensionFactories: [createPijExtension(loadConfig({ PIJ_HOME: home, PIJ_MODE: defaultMode, TYPESAFE_API_KEY: "MODE_PRIVATE_JEV_KEY", PIJ_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJ_JEV_TIMEOUT_MS: "5000" }))],
+        extensionFactories: [createPijevExtension(loadConfig({ PIJEV_HOME: home, PIJEV_MODE: defaultMode, TYPESAFE_API_KEY: "MODE_PRIVATE_JEV_KEY", PIJEV_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJEV_JEV_TIMEOUT_MS: "5000" }))],
       });
       await resources.reload(); assert.deepEqual(resources.getExtensions().errors, []);
       lastResources = resources;
     }
-    const result = await createAgentSession({ ...options, modelRuntime, model: modelRuntime.getModel("mode-local", "fixture"), settingsManager: settings, resourceLoader: resources, tools: ["pij_search", "bash"] });
+    const result = await createAgentSession({ ...options, modelRuntime, model: modelRuntime.getModel("mode-local", "fixture"), settingsManager: settings, resourceLoader: resources, tools: ["pijev_search", "bash"] });
     return { ...result, services: { cwd, agentDir: home, settingsManager: settings, modelRuntime, resourceLoader: resources, diagnostics: [] }, diagnostics: [] };
   };
   const runtime = await createAgentSessionRuntime(factory, { cwd, agentDir: home, sessionManager: SessionManager.create(cwd, sessionDir) });
@@ -103,16 +103,16 @@ async function fixture(t: test.TestContext, initialMode: DecisionMode = "assist"
     get jevCalls() { return jevCalls; }, get modelCalls() { return modelCalls; },
     setDefault(mode: DecisionMode) { defaultMode = mode; },
     reuseExtensions() { reuseResources = true; },
-    async select(mode: DecisionMode) { await runtime.session.prompt(`/pij ${mode}`); },
-    async assertMode(mode: DecisionMode) { await runtime.session.prompt("/pij status"); assert.match(notices.at(-1)!, new RegExp(`Mode: ${mode}\\b`)); },
+    async select(mode: DecisionMode) { await runtime.session.prompt(`/pijev ${mode}`); },
+    async assertMode(mode: DecisionMode) { await runtime.session.prompt("/pijev status"); assert.match(notices.at(-1)!, new RegExp(`Mode: ${mode}\\b`)); },
     async save(text = "Save MODE_PRIVATE_PROMPT to the local session.") { await runtime.session.prompt(text); const leaf = runtime.session.sessionManager.getLeafId(); assert.ok(leaf); return leaf; },
     async reopen() { const path = runtime.session.sessionFile; assert.ok(path); assert.equal((await runtime.switchSession(path)).cancelled, false); },
-    searchAndFail() { plan.push({ name: "pij_search", args: { query: "Find refresh token implementation", patterns: ["token"] } }, { name: "bash", args: { command: "exit 2" } }); },
+    searchAndFail() { plan.push({ name: "pijev_search", args: { query: "Find refresh token implementation", patterns: ["token"] } }, { name: "bash", args: { command: "exit 2" } }); },
     blockNextDecision() { hold = { entered: deferred<ServerResponse>(), closed: deferred<void>() }; return hold; },
   };
 }
 
-const records = (session: AgentSession) => session.sessionManager.getEntries().filter((entry) => entry.type === "custom" && entry.customType === "pij-mode");
+const records = (session: AgentSession) => session.sessionManager.getEntries().filter((entry) => entry.type === "custom" && entry.customType === "pijev-mode");
 
 test("session mode: disk reopen restores all explicit selections over a different configured default", { timeout: 15000 }, async (t) => {
   const h = await fixture(t, "off");
@@ -120,7 +120,7 @@ test("session mode: disk reopen restores all explicit selections over a differen
     await h.select(chosen); await h.save();
     const file = h.runtime.session.sessionFile; assert.ok(file);
     const data = (await readFile(file, "utf8")).trim().split("\n").map((line) => JSON.parse(line));
-    assert.deepEqual(data.filter((entry) => entry.type === "custom" && entry.customType === "pij-mode").at(-1)?.data, { version: 1, mode: chosen });
+    assert.deepEqual(data.filter((entry) => entry.type === "custom" && entry.customType === "pijev-mode").at(-1)?.data, { version: 1, mode: chosen });
     h.setDefault(chosen === "off" ? "assist" : "off"); await h.reopen(); await h.assertMode(chosen);
   }
 });
@@ -131,16 +131,16 @@ test("session mode: tree navigation restores ancestors and divergent branches im
   await h.select("off"); const off = await h.save();
   await h.select("assist"); const assist = await h.save();
   assert.equal((await h.runtime.session.navigateTree(off, { summarize: false })).cancelled, false);
-  // No /pij command may lazily repair mode state before this next actual turn.
+  // No /pijev command may lazily repair mode state before this next actual turn.
   const calls = h.jevCalls;
   h.searchAndFail(); await h.save("Search immediately after tree navigation to off.");
   assert.equal(h.jevCalls, calls, "tree navigation must make off effective before the next command/status read");
-  const search = h.runtime.session.messages.findLast((message) => message.role === "toolResult" && message.toolName === "pij_search");
+  const search = h.runtime.session.messages.findLast((message) => message.role === "toolResult" && message.toolName === "pijev_search");
   assert.ok(search && search.role === "toolResult" && !search.isError);
   assert.ok(JSON.stringify(search).includes("lexical order"));
   const failure = h.runtime.session.messages.findLast((message) => message.role === "toolResult" && message.toolName === "bash");
   assert.ok(failure && failure.role === "toolResult" && failure.isError);
-  assert.ok(!JSON.stringify(failure).includes("PiJ diagnostic suggestion"));
+  assert.ok(!JSON.stringify(failure).includes("PiJev diagnostic suggestion"));
   await h.assertMode("off");
   await h.select("observe"); const sibling = await h.save();
   const total = records(h.runtime.session).length;
@@ -174,11 +174,11 @@ test("session mode: malformed, extra-field, unknown and future entries are ignor
   const h = await fixture(t, "assist"); await h.save();
   const invalid: unknown[] = [null, [], "off", {}, { mode: "off" }, { version: 1 }, { version: "1", mode: "off" }, { version: 0, mode: "off" }, { version: 2, mode: "off" }, { version: 1, mode: "OFF" }, { version: 1, mode: "other" }, { version: 1, mode: null }, { version: 1, mode: "off", prompt: "MODE_INVALID_PRIVATE" }];
   const manager = h.runtime.session.sessionManager;
-  for (const value of invalid) manager.appendCustomEntry("pij-mode", value);
+  for (const value of invalid) manager.appendCustomEntry("pijev-mode", value);
   manager.appendCustomEntry("unrelated-mode", { version: 1, mode: "off" });
   await h.reopen(); await h.assertMode("assist");
   await h.select("observe");
-  for (const value of invalid) h.runtime.session.sessionManager.appendCustomEntry("pij-mode", value);
+  for (const value of invalid) h.runtime.session.sessionManager.appendCustomEntry("pijev-mode", value);
   h.runtime.session.sessionManager.appendCustomEntry("unrelated-mode", { version: 1, mode: "off" });
   await h.reopen(); await h.assertMode("observe");
 });
@@ -196,14 +196,14 @@ test("session mode: allowlisted custom metadata never enters the model context o
     assert.ok(Buffer.byteLength(JSON.stringify(entry.data)) <= 64);
     assert.ok(!JSON.stringify(entry.data).includes("MODE_PRIVATE"));
   }
-  for (const command of ["/pij status", "/pij decisions", "/pij off MODE_PRIVATE_ARGUMENT"]) await h.runtime.session.prompt(command);
+  for (const command of ["/pijev status", "/pijev decisions", "/pijev off MODE_PRIVATE_ARGUMENT"]) await h.runtime.session.prompt(command);
   assert.equal(records(h.runtime.session).length, before.length, "status, decisions and invalid commands must not persist selections");
   await h.reopen(); await h.save("Check model context after resume.");
   const transcript = h.modelRequests.join("\n");
-  assert.ok(!transcript.includes("pij-mode"), "custom mode state is not a model message");
+  assert.ok(!transcript.includes("pijev-mode"), "custom mode state is not a model message");
   for (const sentinel of ["MODE_PRIVATE_ARGUMENT", "MODE_PRIVATE_MODEL_KEY", "MODE_PRIVATE_JEV_KEY"]) assert.ok(!transcript.includes(sentinel));
   const messages = h.runtime.session.sessionManager.buildSessionContext().messages;
-  assert.ok(!JSON.stringify(messages).includes("pij-mode"));
+  assert.ok(!JSON.stringify(messages).includes("pijev-mode"));
 });
 
 test("session mode: restored modes preserve ranking, skill advice and triage effects; restored off makes zero Jev calls", { timeout: 20000 }, async (t) => {
@@ -214,7 +214,7 @@ test("session mode: restored modes preserve ranking, skill advice and triage eff
     const calls = h.jevCalls, modelStart = h.modelRequests.length;
     h.searchAndFail(); await h.save(`Inspect token refresh for restored ${mode}.`);
     const messages = h.runtime.session.messages;
-    const search = messages.findLast((message) => message.role === "toolResult" && message.toolName === "pij_search");
+    const search = messages.findLast((message) => message.role === "toolResult" && message.toolName === "pijev_search");
     assert.ok(search && search.role === "toolResult" && !search.isError);
     const text = JSON.stringify(search);
     assert.ok(text.includes("a.ts") && text.includes("b.ts"));
@@ -222,12 +222,12 @@ test("session mode: restored modes preserve ranking, skill advice and triage eff
     assert.equal(text.indexOf("b.ts") < text.indexOf("a.ts"), mode === "assist");
     const failure = messages.findLast((message) => message.role === "toolResult" && message.toolName === "bash");
     assert.ok(failure && failure.role === "toolResult" && failure.isError);
-    assert.equal(JSON.stringify(failure).includes("PiJ diagnostic suggestion"), mode === "assist");
+    assert.equal(JSON.stringify(failure).includes("PiJev diagnostic suggestion"), mode === "assist");
     const lastRequest = JSON.parse(h.modelRequests[modelStart]!) as { messages: { role: string; content: unknown }[] };
     // The last user prompt splits retained transcript history from this turn's advice.
     const lastUser = lastRequest.messages.findLastIndex((message) => message.role === "user" && JSON.stringify(message.content).includes(`restored ${mode}`));
     assert.ok(lastUser >= 0);
-    assert.equal(JSON.stringify(lastRequest.messages.slice(lastUser)).includes("PiJ skill suggestion"), mode === "assist");
+    assert.equal(JSON.stringify(lastRequest.messages.slice(lastUser)).includes("PiJev skill suggestion"), mode === "assist");
     assert.equal(h.jevCalls - calls, mode === "off" ? 0 : 4);
   }
 });
@@ -241,7 +241,7 @@ test("session mode: a real mode command aborts an in-flight decision and keeps o
   await within(blocked.closed.promise, "mode command must abort the held Jev HTTP request before its deadline");
   await within(running, "mode change did not let the current turn finish promptly");
   assert.equal(h.jevCalls, 1);
-  assert.ok(!h.modelRequests.join("\n").includes("PiJ skill suggestion"), "aborted advice must not appear later");
+  assert.ok(!h.modelRequests.join("\n").includes("PiJev skill suggestion"), "aborted advice must not appear later");
   await h.assertMode("off"); await h.reopen(); await h.assertMode("off");
   const calls = h.jevCalls;
   h.searchAndFail(); await h.save("Continue after restoring off.");
@@ -257,7 +257,7 @@ test("session mode: a real mode command aborts an in-flight decision and keeps o
   await within(ranking.closed.promise, "mode command must abort the held search-ranking HTTP request");
   await within(searching, "cancelled ranking must let the tool turn finish promptly");
   assert.equal(searchCase.jevCalls, 1, "off must suppress subsequent failure triage");
-  const result = searchCase.runtime.session.messages.findLast((message) => message.role === "toolResult" && message.toolName === "pij_search");
+  const result = searchCase.runtime.session.messages.findLast((message) => message.role === "toolResult" && message.toolName === "pijev_search");
   assert.ok(result && result.role === "toolResult" && !result.isError);
   assert.ok(JSON.stringify(result).includes("lexical order"));
   assert.ok(!JSON.stringify(result).includes("Jev ranked"), "cancelled ranking must not be applied");

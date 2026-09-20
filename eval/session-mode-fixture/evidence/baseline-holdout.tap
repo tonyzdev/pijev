@@ -60,25 +60,25 @@ not ok 3 - session mode: public runtime fork inherits selected ancestry and keep
   error: |-
     The input did not match the regular expression /Mode: observe\b/. Input:
 
-    'PiJ · Jev decisions + Pi execution\n' +
+    'PiJev · Jev decisions + Pi execution\n' +
       'Mode: assist · Provider: typesafe · Jev: jev-latest\n' +
-      'Capabilities: skill suggestions · pij_search ranking · failure triage\n' +
+      'Capabilities: skill suggestions · pijev_search ranking · failure triage\n' +
       'Decisions: 0 · cache hits: 0 · fallbacks: 0\n' +
       'Jev input tokens: 0 · total decision wait: 0ms\n' +
-      'Local decision metadata: <candidate>/.tmp/pij-sm-fixture-hciQBf/agent/decisions\n' +
-      'Use /pij assist, /pij observe, /pij off, or /pij decisions.'
+      'Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-hciQBf/agent/decisions\n' +
+      'Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.'
 
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected:
   actual: |-
-    PiJ · Jev decisions + Pi execution
+    PiJev · Jev decisions + Pi execution
     Mode: assist · Provider: typesafe · Jev: jev-latest
-    Capabilities: skill suggestions · pij_search ranking · failure triage
+    Capabilities: skill suggestions · pijev_search ranking · failure triage
     Decisions: 0 · cache hits: 0 · fallbacks: 0
     Jev input tokens: 0 · total decision wait: 0ms
-    Local decision metadata: <candidate>/.tmp/pij-sm-fixture-hciQBf/agent/decisions
-    Use /pij assist, /pij observe, /pij off, or /pij decisions.
+    Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-hciQBf/agent/decisions
+    Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.
   operator: 'match'
   stack: |-
     Object.assertMode (<candidate>/.session-mode-check-xu5QxH/session-mode-holdout.test.ts:107:96)
@@ -97,25 +97,25 @@ not ok 4 - session mode: SDK resource reuse never leaks an outgoing selection in
   error: |-
     The input did not match the regular expression /Mode: observe\b/. Input:
 
-    'PiJ · Jev decisions + Pi execution\n' +
+    'PiJev · Jev decisions + Pi execution\n' +
       'Mode: off · Provider: typesafe · Jev: jev-latest\n' +
-      'Capabilities: skill suggestions · pij_search ranking · failure triage\n' +
+      'Capabilities: skill suggestions · pijev_search ranking · failure triage\n' +
       'Decisions: 0 · cache hits: 0 · fallbacks: 0\n' +
       'Jev input tokens: 0 · total decision wait: 0ms\n' +
-      'Local decision metadata: <candidate>/.tmp/pij-sm-fixture-c7wMMX/agent/decisions\n' +
-      'Use /pij assist, /pij observe, /pij off, or /pij decisions.'
+      'Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-c7wMMX/agent/decisions\n' +
+      'Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.'
 
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected:
   actual: |-
-    PiJ · Jev decisions + Pi execution
+    PiJev · Jev decisions + Pi execution
     Mode: off · Provider: typesafe · Jev: jev-latest
-    Capabilities: skill suggestions · pij_search ranking · failure triage
+    Capabilities: skill suggestions · pijev_search ranking · failure triage
     Decisions: 0 · cache hits: 0 · fallbacks: 0
     Jev input tokens: 0 · total decision wait: 0ms
-    Local decision metadata: <candidate>/.tmp/pij-sm-fixture-c7wMMX/agent/decisions
-    Use /pij assist, /pij observe, /pij off, or /pij decisions.
+    Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-c7wMMX/agent/decisions
+    Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.
   operator: 'match'
   stack: |-
     Object.assertMode (<candidate>/.session-mode-check-xu5QxH/session-mode-holdout.test.ts:107:96)
@@ -134,25 +134,25 @@ not ok 5 - session mode: malformed, extra-field, unknown and future entries are 
   error: |-
     The input did not match the regular expression /Mode: observe\b/. Input:
 
-    'PiJ · Jev decisions + Pi execution\n' +
+    'PiJev · Jev decisions + Pi execution\n' +
       'Mode: assist · Provider: typesafe · Jev: jev-latest\n' +
-      'Capabilities: skill suggestions · pij_search ranking · failure triage\n' +
+      'Capabilities: skill suggestions · pijev_search ranking · failure triage\n' +
       'Decisions: 0 · cache hits: 0 · fallbacks: 0\n' +
       'Jev input tokens: 0 · total decision wait: 0ms\n' +
-      'Local decision metadata: <candidate>/.tmp/pij-sm-fixture-e6RAWJ/agent/decisions\n' +
-      'Use /pij assist, /pij observe, /pij off, or /pij decisions.'
+      'Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-e6RAWJ/agent/decisions\n' +
+      'Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.'
 
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected:
   actual: |-
-    PiJ · Jev decisions + Pi execution
+    PiJev · Jev decisions + Pi execution
     Mode: assist · Provider: typesafe · Jev: jev-latest
-    Capabilities: skill suggestions · pij_search ranking · failure triage
+    Capabilities: skill suggestions · pijev_search ranking · failure triage
     Decisions: 0 · cache hits: 0 · fallbacks: 0
     Jev input tokens: 0 · total decision wait: 0ms
-    Local decision metadata: <candidate>/.tmp/pij-sm-fixture-e6RAWJ/agent/decisions
-    Use /pij assist, /pij observe, /pij off, or /pij decisions.
+    Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-e6RAWJ/agent/decisions
+    Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.
   operator: 'match'
   stack: |-
     Object.assertMode (<candidate>/.session-mode-check-xu5QxH/session-mode-holdout.test.ts:107:96)
@@ -217,25 +217,25 @@ not ok 8 - session mode: a real mode command aborts an in-flight decision and ke
   error: |-
     The input did not match the regular expression /Mode: off\b/. Input:
 
-    'PiJ · Jev decisions + Pi execution\n' +
+    'PiJev · Jev decisions + Pi execution\n' +
       'Mode: assist · Provider: typesafe · Jev: jev-latest\n' +
-      'Capabilities: skill suggestions · pij_search ranking · failure triage\n' +
+      'Capabilities: skill suggestions · pijev_search ranking · failure triage\n' +
       'Decisions: 0 · cache hits: 0 · fallbacks: 0\n' +
       'Jev input tokens: 0 · total decision wait: 0ms\n' +
-      'Local decision metadata: <candidate>/.tmp/pij-sm-fixture-uor12m/agent/decisions\n' +
-      'Use /pij assist, /pij observe, /pij off, or /pij decisions.'
+      'Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-uor12m/agent/decisions\n' +
+      'Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.'
 
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected:
   actual: |-
-    PiJ · Jev decisions + Pi execution
+    PiJev · Jev decisions + Pi execution
     Mode: assist · Provider: typesafe · Jev: jev-latest
-    Capabilities: skill suggestions · pij_search ranking · failure triage
+    Capabilities: skill suggestions · pijev_search ranking · failure triage
     Decisions: 0 · cache hits: 0 · fallbacks: 0
     Jev input tokens: 0 · total decision wait: 0ms
-    Local decision metadata: <candidate>/.tmp/pij-sm-fixture-uor12m/agent/decisions
-    Use /pij assist, /pij observe, /pij off, or /pij decisions.
+    Local decision metadata: <candidate>/.tmp/pijev-sm-fixture-uor12m/agent/decisions
+    Use /pijev assist, /pijev observe, /pijev off, or /pijev decisions.
   operator: 'match'
   stack: |-
     Object.assertMode (<candidate>/.session-mode-check-xu5QxH/session-mode-holdout.test.ts:107:96)

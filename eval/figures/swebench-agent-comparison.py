@@ -5,7 +5,7 @@ DATA=sys.argv[1] if len(sys.argv)>1 else f"{SC}/agent-chart-data.json"
 NAME=sys.argv[2] if len(sys.argv)>2 else "agent"
 D=json.load(open(DATA))
 META=D.pop("_meta",{})
-ARMS=[("pi","Pi（bash grep）","#9a9a9a","c"),("pij-off","PiJ · 无 Jev（BM25 briefing）","#3987e5","c"),("pij-jev","PiJ · Jev 重排 briefing","#d55181","d")]
+ARMS=[("pi","Pi（bash grep）","#9a9a9a","c"),("pij-off","PiJev · 无 Jev（BM25 briefing）","#3987e5","c"),("pij-jev","PiJev · Jev 重排 briefing","#d55181","d")]
 FIRST_GOLD={k:D[k].get("first_gold",0) for k in ("pi","pij-off","pij-jev")}
 ARMS=[a for a in ARMS if D[a[0]].get("n",0)>0]
 W,H=1672,1110
@@ -56,7 +56,7 @@ if META.get("hero")=="paired":
         if dist>30:
             ux,uy=dx/dist,dy/dist
             sx,sy=x0+ux*13,y0+uy*13              # leave the Pi circle
-            ex,ey=x1-ux*15,y1-uy*15              # stop before the PiJ diamond
+            ex,ey=x1-ux*15,y1-uy*15              # stop before the PiJev diamond
             o.append(f'<line x1="{sx:.1f}" y1="{sy:.1f}" x2="{ex-ux*9:.1f}" y2="{ey-uy*9:.1f}" stroke="{col}" stroke-width="2" stroke-opacity="0.75"/>')
             bx,by=ex-ux*10,ey-uy*10
             o.append(f'<path d="M{ex:.1f},{ey:.1f} L{bx-uy*5:.1f},{by+ux*5:.1f} L{bx+uy*5:.1f},{by-ux*5:.1f} Z" fill="{col}" fill-opacity="0.9"/>')
@@ -93,12 +93,12 @@ if META.get("hero")=="paired":
     # legend, top-left under the title
     lx=22
     mark(lx+7,61,"#9a9a9a","c",7); t(lx+22,66,"Pi（bash grep）",INK2,15); lx+=22+15*9+34
-    mark(lx+7,61,"#d55181","d",7); t(lx+22,66,"PiJ + Jev",INK2,15); lx+=22+8.2*9+34
-    lab="箭头：同一任务 Pi → PiJ，洋红 = 调用与上下文都更少"
+    mark(lx+7,61,"#d55181","d",7); t(lx+22,66,"PiJev + Jev",INK2,15); lx+=22+8.2*9+34
+    lab="箭头：同一任务 Pi → PiJev，洋红 = 调用与上下文都更少"
     o.append(f'<line x1="{lx}" x2="{lx+26}" y1="61" y2="61" stroke="#d55181" stroke-width="2"/>'); t(lx+32,66,lab,INK2,15); lx+=32+sum(15 if ord(c)>0x2E80 else 8.2 for c in lab)+34
     o.append(f'<circle cx="{lx+7}" cy="61" r="9" fill="none" stroke="#ededed" stroke-width="1.5"/>'); t(lx+24,66,"白圈 = 该 run 解决了任务",INK2,15); lx+=24+15*13+34
-    t(lx,66,"任务名",'#f0a3c4',15,"500"); t(lx+15*3+4,66,"标在 PiJ 那端",INK2,15)
-    t(PW-R,T+22,f"{better}/{len(A)} 个任务 PiJ 的调用与上下文同时更少",INK,17,"600","end",halo=True)
+    t(lx,66,"任务名",'#f0a3c4',15,"500"); t(lx+15*3+4,66,"标在 PiJev 那端",INK2,15)
+    t(PW-R,T+22,f"{better}/{len(A)} 个任务 PiJev 的调用与上下文同时更少",INK,17,"600","end",halo=True)
 else:
     L,R,T,B=90,60,110,70
     XMIN,XMAX=META.get("xmin",100_000),META.get("xmax",400_000); YMIN,YMAX=META.get("ymin",0.55),META.get("ymax",0.90)
@@ -128,7 +128,7 @@ else:
     for k,v,r,col,shape,label in pts:
         mark(x(v),y(r),col,shape,10)
         dx,dy,an=offsets[k]; d=D[k]
-        t(x(v)+dx,y(r)+dy,f"{label.split('（')[0].split(' ·')[0] if k=='pi' else ('PiJ 无 Jev' if k=='pij-off' else 'PiJ + Jev')}  {d['resolved']}/{d['n']} · {v/1000:.0f}k tok · {d['seconds']['mean']:.0f}s",INK2,14,"400",an,halo=True)
+        t(x(v)+dx,y(r)+dy,f"{label.split('（')[0].split(' ·')[0] if k=='pi' else ('PiJev 无 Jev' if k=='pij-off' else 'PiJev + Jev')}  {d['resolved']}/{d['n']} · {v/1000:.0f}k tok · {d['seconds']['mean']:.0f}s",INK2,14,"400",an,halo=True)
 
 # ---------- bottom: small bar panels, their "(lower is better)" style ----------
 metrics=[("首步即读到目标文件","（越高越好）",lambda k:FIRST_GOLD[k],lambda k:None,lambda v:f"{v}/{D['pi']['n']}",D["pi"]["n"]),
@@ -153,7 +153,7 @@ for i,(title,sub,fmean,fmed,fmt,ymax) in enumerate(metrics):
         top_y=min(yy(v), yy(m) if m is not None else yy(v))   # value label clears the median tick too
         t(cx,top_y-8,fmt(v),INK,13,"500","middle")
         if m is not None: o.append(f'<line x1="{cx-barw/2-6:.1f}" x2="{cx+barw/2+6:.1f}" y1="{yy(m):.1f}" y2="{yy(m):.1f}" stroke="#ffffff" stroke-width="2"/>')
-        short={"pi":"Pi","pij-off":"PiJ 无 Jev","pij-jev":"PiJ + Jev"}[k]
+        short={"pi":"Pi","pij-off":"PiJev 无 Jev","pij-jev":"PiJev + Jev"}[k]
         t(cx,base+20,short,col,12.5,"500","middle")
         if m is not None: t(cx,base+38,f"中位 {fmt(m)}",INK3,11.5,"400","middle")
 t(18,H-12,META.get("footnote","柱 = 均值 · 白线 = 中位数 · 完成 = 参考测试补丁下 FAIL_TO_PASS 全过且无回归"),INK3,12.5)

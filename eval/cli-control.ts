@@ -12,13 +12,13 @@ function inside(root: string, path: string): boolean {
 
 /** Explicitly loaded only by the real-CLI dogfood runner, never shipped as a product extension. */
 const control: ExtensionFactory = async (pi) => {
-  const workspace = process.env.PIJ_EVAL_WORKSPACE;
-  const statsPath = process.env.PIJ_EVAL_STATS;
+  const workspace = process.env.PIJEV_EVAL_WORKSPACE;
+  const statsPath = process.env.PIJEV_EVAL_STATS;
   let cwd: string;
   let profile: string;
   let budgets: EvalBudgets;
   try {
-    const protectedHome = process.env.PIJ_EVAL_PROTECTED_HOME;
+    const protectedHome = process.env.PIJEV_EVAL_PROTECTED_HOME;
     if (!workspace || !statsPath || !protectedHome || !isAbsolute(protectedHome) || process.platform !== "darwin") throw new Error("Invalid isolation configuration.");
     cwd = await realpath(workspace);
     const actualHome = await realpath(protectedHome);
@@ -27,12 +27,12 @@ const control: ExtensionFactory = async (pi) => {
     const developmentRepository = await realpath(resolve(dirname(fileURLToPath(import.meta.url)), ".."));
     if (!(await stat(actualHome)).isDirectory() || inside(cwd, actualHome) || inside(cwd, developmentRepository)) throw new Error("Invalid protection roots.");
     // The repository's HTTP fixtures need loopback. External network remains denied.
-    const allowRead = await Promise.all((process.env.PIJ_EVAL_ALLOW_READ ?? "").split(":").filter(Boolean).map((root) => realpath(root)));
+    const allowRead = await Promise.all((process.env.PIJEV_EVAL_ALLOW_READ ?? "").split(":").filter(Boolean).map((root) => realpath(root)));
     if (allowRead.some((root) => inside(root, actualHome) || inside(root, developmentRepository) || inside(actualHome, root) || inside(developmentRepository, root))) throw new Error("Allowed read roots must not overlap protected roots.");
     profile = sandboxProfile(cwd, [actualHome, developmentRepository], { allowLoopback: true, allowRead });
     budgets = validateBudgets({
-      turns: Number(process.env.PIJ_EVAL_TURNS ?? 36), seconds: Number(process.env.PIJ_EVAL_SECONDS ?? 360),
-      tokens: Number(process.env.PIJ_EVAL_TOKENS ?? 180000), maxOutputTokens: Number(process.env.PIJ_EVAL_MAX_OUTPUT_TOKENS ?? 16384),
+      turns: Number(process.env.PIJEV_EVAL_TURNS ?? 36), seconds: Number(process.env.PIJEV_EVAL_SECONDS ?? 360),
+      tokens: Number(process.env.PIJEV_EVAL_TOKENS ?? 180000), maxOutputTokens: Number(process.env.PIJEV_EVAL_MAX_OUTPUT_TOKENS ?? 16384),
     });
   } catch {
     // Pi skips extensions whose factory throws. Keep this extension installed

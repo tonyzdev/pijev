@@ -7,10 +7,10 @@ import { join } from "node:path";
 import test from "node:test";
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
 import { loadConfig } from "../src/config.js";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 
 test("mode selection survives a saved SDK session being reopened", { timeout: 10000 }, async (t) => {
-  const root = await mkdtemp(join(tmpdir(), "pij-mode-visible-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-mode-visible-"));
   const cwd = join(root, "project"), home = join(root, "agent");
   await mkdir(cwd);
   const sessions: Awaited<ReturnType<typeof createAgentSession>>["session"][] = [];
@@ -36,7 +36,7 @@ test("mode selection survives a saved SDK session being reopened", { timeout: 10
   const notices: string[] = [];
   async function open(manager: SessionManager) {
     const settings = SettingsManager.inMemory({ retry: { enabled: false }, compaction: { enabled: false } });
-    const resources = new DefaultResourceLoader({ cwd, agentDir: home, settingsManager: settings, noExtensions: true, noSkills: true, noThemes: true, noPromptTemplates: true, agentsFilesOverride: () => ({ agentsFiles: [] }), skillsOverride: () => ({ skills: [], diagnostics: [] }), extensionFactories: [createPijExtension(loadConfig({ PIJ_HOME: home, PIJ_MODE: "assist" }))] });
+    const resources = new DefaultResourceLoader({ cwd, agentDir: home, settingsManager: settings, noExtensions: true, noSkills: true, noThemes: true, noPromptTemplates: true, agentsFilesOverride: () => ({ agentsFiles: [] }), skillsOverride: () => ({ skills: [], diagnostics: [] }), extensionFactories: [createPijevExtension(loadConfig({ PIJEV_HOME: home, PIJEV_MODE: "assist" }))] });
     await resources.reload(); assert.deepEqual(resources.getExtensions().errors, []);
     const { session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("mode-visible-local", "fixture"), resourceLoader: resources, settingsManager: settings, sessionManager: manager, tools: [] });
     sessions.push(session);
@@ -44,13 +44,13 @@ test("mode selection survives a saved SDK session being reopened", { timeout: 10
     return session;
   }
   const original = await open(SessionManager.create(cwd, join(root, "sessions")));
-  await original.prompt("/pij off");
+  await original.prompt("/pijev off");
   await original.prompt("Save this local fixture session.");
   const path = original.sessionFile; assert.ok(path);
-  assert.match(await readFile(path, "utf8"), /"pij-mode"/, "saved Pi session must own the mode selection");
+  assert.match(await readFile(path, "utf8"), /"pijev-mode"/, "saved Pi session must own the mode selection");
   original.dispose();
   const reopened = await open(SessionManager.open(path));
-  await reopened.prompt("/pij status");
+  await reopened.prompt("/pijev status");
   assert.match(notices.at(-1)!, /Mode: off\b/, "reopen must restore off instead of the configured assist default");
   assert.equal(requests, 1, "mode/status commands do not invoke the model");
 });

@@ -1,26 +1,26 @@
-# PiJ 0.1 — terminal product
+# PiJev 0.1 — terminal product
 
-PiJ is a terminal coding agent built on Pi. Jev supplies bounded semantic decisions; the user's generative model writes code, reasons across files, and uses tools. The first release is a working local CLI, not a published package or a claim of improved coding benchmarks.
+PiJev is a terminal coding agent built on Pi. Jev supplies bounded semantic decisions; the user's generative model writes code, reasons across files, and uses tools. The first release is a working local CLI, not a published package or a claim of improved coding benchmarks.
 
 ## Product decision
 
-The user selected terminal first. Use Pi's public `main(args, {extensionFactories})` SDK entry point and a bundled first-party extension. This preserves Pi's login, project trust, tools, sessions, cancellation, print and RPC modes while keeping upstream pinned. A full fork increases maintenance without enabling a necessary first-release feature; replacing the runtime from scratch discards mature behavior. The selected SDK approach still gives PiJ its own executable, home, onboarding, commands, decisions and retrieval workflow.
+The user selected terminal first. Use Pi's public `main(args, {extensionFactories})` SDK entry point and a bundled first-party extension. This preserves Pi's login, project trust, tools, sessions, cancellation, print and RPC modes while keeping upstream pinned. A full fork increases maintenance without enabling a necessary first-release feature; replacing the runtime from scratch discards mature behavior. The selected SDK approach still gives PiJev its own executable, home, onboarding, commands, decisions and retrieval workflow.
 
 ## User experience
 
-- `pij`: interactive coding session, distinct PiJ header and Jev status.
-- `pij doctor`: local configuration/credential-presence checks; never prints keys or sends network requests.
-- `pij decisions`: recent local decision metadata, no source text.
-- `pij --help`, `--version`: PiJ documentation and version.
+- `pijev`: interactive coding session, distinct PiJev header and Jev status.
+- `pijev doctor`: local configuration/credential-presence checks; never prints keys or sends network requests.
+- `pijev decisions`: recent local decision metadata, no source text.
+- `pijev --help`, `--version`: PiJev documentation and version.
 - Standard Pi flags and `/login`, `/model`, `/resume` remain available.
-- `/pij`: capabilities, current mode, key availability and session decision statistics.
-- `/pij assist|observe|off`: change mode for this session. Assist applies suggestions; observe evaluates without injecting recommendations or changing ranking; off makes no Jev requests.
-- `PIJ_HOME` defaults to `~/.pij/agent`. Pi authentication and sessions are isolated from `~/.pi/agent`. Jev reads `TYPESAFE_API_KEY` for TypeSafe or `AI_GATEWAY_API_KEY` for Vercel, selected by provider configuration.
+- `/pijev`: capabilities, current mode, key availability and session decision statistics.
+- `/pijev assist|observe|off`: change mode for this session. Assist applies suggestions; observe evaluates without injecting recommendations or changing ranking; off makes no Jev requests.
+- `PIJEV_HOME` defaults to `~/.pijev/agent`. Pi authentication and sessions are isolated from `~/.pi/agent`. Jev reads `TYPESAFE_API_KEY` for TypeSafe or `AI_GATEWAY_API_KEY` for Vercel, selected by provider configuration.
 
 ## Jev integration
 
 1. Skill selection: capture the request and roster at `before_agent_start`, then evaluate once in the first cancellable `context` hook. Rank only model-invokable skills, read a small shortlist, verify relevance, and add bounded advisory text to outgoing model context for this run. Advice is not a persistent transcript entry. Keep the original skill roster. An explicit `/skill:` choice remains authoritative. No question key is assumed to carry semantic meaning: instructions identify the state fields explicitly.
-2. Code search: add `pij_search`, which uses literal ripgrep patterns to retrieve a bounded set of source excerpts, then batches independent Jev relevance questions. Return exact paths, line numbers and excerpts; state candidate/output limits. Ranking does not prove that omitted files are irrelevant. Normal read/bash tools remain available.
+2. Code search: add `pijev_search`, which uses literal ripgrep patterns to retrieve a bounded set of source excerpts, then batches independent Jev relevance questions. Return exact paths, line numbers and excerpts; state candidate/output limits. Ranking does not prove that omitted files are irrelevant. Normal read/bash tools remain available.
 3. Failure triage: only on failed tool results, classify among fixed categories and offer a fixed diagnostic hint. Preserve original tool text, error status and exit code. Never execute a retry or alter tool arguments on the classifier's authority.
 
 ## Reliability

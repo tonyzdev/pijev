@@ -109,7 +109,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   } });
   const sample = JSON.parse(await readFile(values.sample!, "utf8")) as { repo: string; instance_id: string; base_commit: string; problem_statement: string; patch: string; difficulty: string }[];
   const shortlist = Number(values.shortlist);
-  const client = new JevClient({ ...loadConfig({ ...process.env, PIJ_JEV_PROVIDER: "vercel" }), timeoutMs: 30_000 });
+  const client = new JevClient({ ...loadConfig({ ...process.env, PIJEV_JEV_PROVIDER: "vercel" }), timeoutMs: 30_000 });
   await mkdir(values.out!, { recursive: true });
   const records = [];
   for (const inst of sample) {

@@ -4,11 +4,11 @@ import sys
 ARMS=[("pi","agent-main"),("pij-off","agent-main-v2"),("pij-jev","agent-main-v2")]+([("pij-jev","agent-main-v3")] if len(sys.argv)>1 else [])
 SEARCH=re.compile(r'(?:^|[\s|;&(])(?:rg|grep|egrep|find|fd|tree)\b|git\s+(?:grep|ls-files)|(?:^|[\s|;&(])ls\b')
 def kind(t,a):
-    if t=="pij_search": return "search"
+    if t in ("pij_search", "pijev_search"): return "search"
     if t=="read": return "read"
     if t in("edit","write"): return "edit"
     c=a.get("command","") if t=="bash" else ""
-    if re.search(r'runtests\.py|pytest',c): return "test"
+    if re.search(r'runtests\.py|pytest|\bnode\b[^|;&]*\s--test\b|\btsx\s+--test\b|\b(?:pnpm|npm)\s+(?:run\s+)?test\b',c): return "test"
     if SEARCH.search(c): return "search"
     if re.search(r'(?:^|[\s|;&(])(?:cat|head|tail|wc)\b|sed\s+-n|git\s+(?:show|log|diff)',c): return "read"
     return "other"

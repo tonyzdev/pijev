@@ -1,8 +1,8 @@
 # Can Jev identify missing test evidence?
 
-This experiment evaluates a possible advisory use, not an implemented PiJ feature. The product does not use these scores to declare completion, skip acceptance checks, or block a response.
+This experiment evaluates a possible advisory use, not an implemented PiJev feature. The product does not use these scores to declare completion, skip acceptance checks, or block a response.
 
-The motivating failure is concrete: an actual `pij` run produced a session/turn observability patch that passed the existing 40 tests but reused a turn ID after a consumed steering message. An independently added test through the real Pi SDK exposed the defect. Could a small Jev judgment flag missing tests before the main model finishes?
+The motivating failure is concrete: an actual `pijev` run produced a session/turn observability patch that passed the existing 40 tests but reused a turn ID after a consumed steering message. An independently added test through the real Pi SDK exposed the defect. Could a small Jev judgment flag missing tests before the main model finishes?
 
 ## Frozen test-source probe
 
@@ -51,7 +51,7 @@ Run the same question and cases against the configured provider, incurring 28 re
 node --env-file=.env --import tsx eval/evidence-probe.ts --live
 ```
 
-New results are written incrementally under ignored `.pij/evidence-probes/`; the committed snapshot is never overwritten. The runner does not execute source snippets. It loads labels only after persisting the responses. A [frozen manifest](../eval/evidence/manifest.json) binds replay to the original question, cases, labels and responses; editing one without updating the manifest fails rather than silently rescoring old responses as a new experiment. Published cases are now development data, not a fresh holdout for future prompt tuning.
+New results are written incrementally under ignored `.pijev/evidence-probes/`; the committed snapshot is never overwritten. The runner does not execute source snippets. It loads labels only after persisting the responses. A [frozen manifest](../eval/evidence/manifest.json) binds replay to the original question, cases, labels and responses; editing one without updating the manifest fails rather than silently rescoring old responses as a new experiment. Published cases are now development data, not a fresh holdout for future prompt tuning.
 
 The original artifacts are byte-preserved:
 

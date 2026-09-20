@@ -7,14 +7,14 @@ import { join } from "node:path";
 import test from "node:test";
 import { createAgentSessionRuntime, createAgentSessionServices, createAgentSessionFromServices, ModelRuntime, SessionManager, SettingsManager, type CreateAgentSessionRuntimeFactory } from "@earendil-works/pi-coding-agent";
 import { loadConfig } from "../src/config.js";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 import { readRecentDecisions, type DecisionRecord } from "../src/telemetry.js";
 import { formatDecisions } from "../src/ui.js";
 
 const first = "Locate the queue admission logic: PRIVATE_PROMPT_MARKER";
 const second = "Inspect the token refresh policy: SECOND_PRIVATE_PROMPT";
 const queued = "This is queued, not yet consumed: QUEUED_PRIVATE_PROMPT";
-const search = (query = first) => ({ tool: "pij_search", args: { query, patterns: ["function"] } });
+const search = (query = first) => ({ tool: "pijev_search", args: { query, patterns: ["function"] } });
 type Step = ReturnType<typeof search> | "done";
 const identity = (row: DecisionRecord) => {
   const value = (row as DecisionRecord & { turnId?: string; userMessageId?: string }).userMessageId ?? (row as DecisionRecord & { turnId?: string }).turnId;
@@ -26,7 +26,7 @@ const identity = (row: DecisionRecord) => {
 // This harness is separate from the visible reproduction. The SDK runs its actual
 // queue, tool, HTTP transport, context and abort machinery; no lifecycle handler is mocked.
 async function harness(t: test.TestContext, plan: Step[], mode: "assist" | "observe" | "off" = "assist") {
-  const root = await mkdtemp(join(tmpdir(), "pij-checkpoint-holdout-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-checkpoint-holdout-"));
   const cwd = join(root, "project");
   const home = join(root, "agent");
   await mkdir(cwd);
@@ -86,11 +86,11 @@ async function harness(t: test.TestContext, plan: Step[], mode: "assist" | "obse
       resourceLoaderOptions: {
         noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
         agentsFilesOverride: () => ({ agentsFiles: [] }), skillsOverride: () => ({ skills: [], diagnostics: [] }),
-        extensionFactories: [createPijExtension(loadConfig({ PIJ_HOME: home, PIJ_MODE: mode, TYPESAFE_API_KEY: "LOCAL_JEV_SECRET", PIJ_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJ_JEV_TIMEOUT_MS: "5000" }))],
+        extensionFactories: [createPijevExtension(loadConfig({ PIJEV_HOME: home, PIJEV_MODE: mode, TYPESAFE_API_KEY: "LOCAL_JEV_SECRET", PIJEV_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJEV_JEV_TIMEOUT_MS: "5000" }))],
       },
     });
     assert.deepEqual(services.resourceLoader.getExtensions().errors, []);
-    const result = await createAgentSessionFromServices({ services, sessionManager, sessionStartEvent, model: modelRuntime.getModel("checkpoint-local", "fixture"), tools: ["pij_search"] });
+    const result = await createAgentSessionFromServices({ services, sessionManager, sessionStartEvent, model: modelRuntime.getModel("checkpoint-local", "fixture"), tools: ["pijev_search"] });
     result.session.subscribe((event) => { if (event.type === "tool_execution_end") toolResults.push(event.result); });
     return { ...result, services, diagnostics: services.diagnostics };
   };
@@ -218,7 +218,7 @@ for (const mode of ["assist", "observe", "off"] as const) {
 }
 
 test("holdout: old journal records without identity fields remain readable and renderable", async (t) => {
-  const root = await mkdtemp(join(tmpdir(), "pij-checkpoint-legacy-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-checkpoint-legacy-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   await mkdir(join(root, "decisions"));
   const legacy = { at: "2025-01-01T00:00:00.000Z", mode: "observe", kind: "code_rank", status: "ok", latencyMs: 2, questionCount: 2, cached: false, model: "local" };

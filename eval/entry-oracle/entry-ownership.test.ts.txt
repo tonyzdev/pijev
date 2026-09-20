@@ -7,7 +7,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { createAgentSession, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager } from "@earendil-works/pi-coding-agent";
 import { loadConfig } from "../src/config.js";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 import { readRecentDecisions, type DecisionRecord } from "../src/telemetry.js";
 import { formatDecisions } from "../src/ui.js";
 
@@ -23,7 +23,7 @@ const identity = (row: DecisionRecord): string => {
 // Each test creates its own real SDK session and freshly persisted journal rows.
 // No lifecycle callbacks, session entries, or attribution fields are fabricated.
 async function generateRows(t: test.TestContext) {
-  const root = await mkdtemp(join(tmpdir(), "pij-entry-oracle-"));
+  const root = await mkdtemp(join(tmpdir(), "pijev-entry-oracle-"));
   const cwd = join(root, "project");
   const home = join(root, "agent");
   let session: Awaited<ReturnType<typeof createAgentSession>>["session"] | undefined;
@@ -51,7 +51,7 @@ async function generateRows(t: test.TestContext) {
       assert.ok(++modelCalls <= 3, "model made an unplanned request");
       const searching = modelCalls <= 2;
       const delta = searching ? {
-        role: "assistant", tool_calls: [{ index: 0, id: `search_${modelCalls}`, type: "function", function: { name: "pij_search", arguments: JSON.stringify({ query: first, patterns: ["function"] }) } }],
+        role: "assistant", tool_calls: [{ index: 0, id: `search_${modelCalls}`, type: "function", function: { name: "pijev_search", arguments: JSON.stringify({ query: first, patterns: ["function"] }) } }],
       } : { role: "assistant", content: "complete" };
       res.writeHead(200, { "Content-Type": "text/event-stream" });
       for (const [part, finish] of [[delta, null], [{}, searching ? "tool_calls" : "stop"]]) {
@@ -85,11 +85,11 @@ async function generateRows(t: test.TestContext) {
   const resources = new DefaultResourceLoader({
     cwd, agentDir: home, settingsManager: settings, noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
     agentsFilesOverride: () => ({ agentsFiles: [] }), skillsOverride: () => ({ skills: [], diagnostics: [] }),
-    extensionFactories: [createPijExtension(loadConfig({ PIJ_HOME: home, PIJ_MODE: "assist", PIJ_SOURCE_BRIEFING: "0", TYPESAFE_API_KEY: "ENTRY_ORACLE_LOCAL_JEV_KEY", PIJ_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJ_JEV_TIMEOUT_MS: "5000" }))],
+    extensionFactories: [createPijevExtension(loadConfig({ PIJEV_HOME: home, PIJEV_MODE: "assist", PIJEV_SOURCE_BRIEFING: "0", TYPESAFE_API_KEY: "ENTRY_ORACLE_LOCAL_JEV_KEY", PIJEV_JEV_ENDPOINT: `${baseUrl}/systemone`, PIJEV_JEV_TIMEOUT_MS: "5000" }))],
   });
   await resources.reload();
   assert.deepEqual(resources.getExtensions().errors, []);
-  ({ session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("entry-oracle-local", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory(cwd), tools: ["pij_search"] }));
+  ({ session } = await createAgentSession({ cwd, agentDir: home, modelRuntime: runtime, model: runtime.getModel("entry-oracle-local", "fixture"), settingsManager: settings, resourceLoader: resources, sessionManager: SessionManager.inMemory(cwd), tools: ["pijev_search"] }));
   await session.bindExtensions({});
   const running = session.prompt(first);
   await rankEntered;

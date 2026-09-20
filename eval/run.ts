@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { createAgentSession, createBashToolDefinition, DefaultResourceLoader, ModelRuntime, SessionManager, SettingsManager, type ExtensionFactory } from "@earendil-works/pi-coding-agent";
 import { loadConfig } from "../src/config.js";
-import { createPijExtension } from "../src/extension.js";
+import { createPijevExtension } from "../src/extension.js";
 import { readRecentDecisions } from "../src/telemetry.js";
 import { checkWorkspacePath, sandboxProfile, shellEnvironment, shellQuote } from "./sandbox.js";
 import { TASKS } from "./tasks.js";
@@ -38,8 +38,8 @@ for (const name of Object.keys(process.env)) if (/KEY|TOKEN|SECRET|PASSWORD|CRED
 const project = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const runId = `${new Date().toISOString().replaceAll(":", "-")}-${task.id}-${mode}-briefing-${values.briefing ? "on" : "off"}`;
 const source = await captureSourceProvenance(project);
-const output = join(project, ".pij", "evals", runId);
-const cwd = await realpath(await mkdtemp(join(process.platform === "darwin" ? "/private/tmp" : tmpdir(), "pij-task-")));
+const output = join(project, ".pijev", "evals", runId);
+const cwd = await realpath(await mkdtemp(join(process.platform === "darwin" ? "/private/tmp" : tmpdir(), "pijev-task-")));
 await mkdir(output, { recursive: true, mode: 0o700 });
 await task.setup(cwd);
 await Promise.all([mkdir(join(cwd, ".home")), mkdir(join(cwd, ".tmp"))]);
@@ -71,7 +71,7 @@ const control: ExtensionFactory = (pi) => {
     }
   });
 };
-const factories = mode === "plain" ? [control] : [control, createPijExtension({ ...config, home: join(output, "home"), mode, sourceBriefing: values.briefing })];
+const factories = mode === "plain" ? [control] : [control, createPijevExtension({ ...config, home: join(output, "home"), mode, sourceBriefing: values.briefing })];
 const resources = new DefaultResourceLoader({
   cwd, agentDir: join(output, "home"), settingsManager: settings,
   noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true,
@@ -83,7 +83,7 @@ if (resources.getExtensions().errors.length) throw new Error("Evaluation extensi
 const { session } = await createAgentSession({
   cwd, agentDir: join(output, "home"), model, modelRuntime: runtime, thinkingLevel: "off",
   resourceLoader: resources, settingsManager: settings, sessionManager: SessionManager.inMemory(),
-  tools: ["read", "bash", "edit", "write", ...(mode === "plain" ? [] : ["pij_search"])],
+  tools: ["read", "bash", "edit", "write", ...(mode === "plain" ? [] : ["pijev_search"])],
 });
 await session.bindExtensions({});
 const recording = await recordEvalRun(session, join(output, "events.jsonl"), clean, () => { termination = "interrupted"; });

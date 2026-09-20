@@ -10,7 +10,7 @@ import { createCheckpointExtension, type CheckpointRecord } from "../eval/checkp
 
 for (const condition of ["manual", "dependencies", "jev", "cancel", "capped"] as const) {
 test(`actual Pi checkpoint: ${condition} after an edit batch`, { skip: process.platform !== "darwin", timeout: 10000 }, async (t) => {
-  const cwd = await mkdtemp(join(tmpdir(), "pij-cpi-"));
+  const cwd = await mkdtemp(join(tmpdir(), "pijev-cpi-"));
   t.after(() => rm(cwd, { recursive: true, force: true }));
   for (const path of ["src", "test", ".home", ".tmp"]) await mkdir(join(cwd, path));
   await writeFile(join(cwd, "src/a.mjs"), "export const value = 1;\n");
@@ -58,7 +58,7 @@ test(`actual Pi checkpoint: ${condition} after an edit batch`, { skip: process.p
     assert.equal(calls, 1);
     assert.equal(records.length, 1);
     assert.equal(records[0]!.execution, undefined, "Cancellation must prevent test process launch");
-    assert.equal(session.messages.filter((message) => message.role === "custom" && message.customType === "pij-checkpoint").length, 0);
+    assert.equal(session.messages.filter((message) => message.role === "custom" && message.customType === "pijev-checkpoint").length, 0);
     return;
   }
   assert.equal(calls, 3, "Checkpoint must not introduce a separate model turn");
@@ -68,14 +68,14 @@ test(`actual Pi checkpoint: ${condition} after an edit batch`, { skip: process.p
   if (condition === "manual") {
     assert.deepEqual(records[0]!.selected, []);
     assert.equal(records[0]!.execution, undefined);
-    assert.equal(payloads.some((payload) => payload.includes("PiJ executed checkpoint")), false);
+    assert.equal(payloads.some((payload) => payload.includes("PiJev executed checkpoint")), false);
     return;
   }
   assert.deepEqual(records[0]!.selected, ["test/b.test.mjs"]);
   assert.equal(records[0]!.execution?.status, "passed");
   assert.match(payloads[1]!, /fresh edited value/);
-  assert.equal((payloads[2]!.match(/PiJ executed checkpoint/g) ?? []).length, 1);
-  const at = session.messages.findIndex((message) => message.role === "custom" && message.customType === "pij-checkpoint");
+  assert.equal((payloads[2]!.match(/PiJev executed checkpoint/g) ?? []).length, 1);
+  const at = session.messages.findIndex((message) => message.role === "custom" && message.customType === "pijev-checkpoint");
   assert.ok(at > 0);
   assert.equal(session.messages[at - 1]!.role, "toolResult", "Evidence follows the entire tool batch");
 });

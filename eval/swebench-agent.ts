@@ -10,7 +10,7 @@ import { goldFiles } from "./swebench-retrieval.js";
 
 /**
  * End-to-end comparison on SWE-bench Verified: the same main model drives plain
- * Pi, PiJ without Jev (BM25 shortlist only) and PiJ with Jev. Every tool call is
+ * Pi, PiJev without Jev (BM25 shortlist only) and PiJev with Jev. Every tool call is
  * classified so search effort, context spent and outcome can be compared per task.
  * Outcome is the benchmark's own oracle: FAIL_TO_PASS tests after the test patch.
  */
@@ -18,7 +18,7 @@ type Arm = "pi" | "pij-off" | "pij-jev";
 interface Instance {
   repo: string; instance_id: string; base_commit: string; problem_statement: string; patch: string; test_patch: string; FAIL_TO_PASS: string; PASS_TO_PASS: string; difficulty: string;
   /** Repositories other than SWE-bench's: where to clone from, how to install, and which test files the oracle runs with pytest. */
-  runner?: "django" | "pytest"; clone_url?: string; install?: string; test_files?: string[]; repo_dir?: string;
+  runner?: "django" | "pytest" | "node-test"; clone_url?: string; install?: string; test_files?: string[]; repo_dir?: string;
 }
 
 const exec = promisify(execFile);
@@ -45,12 +45,12 @@ const clean = (text: string) => secrets.reduce((t, s) => t.replaceAll(s, "[redac
 
 /** Search effort is the quantity under test, so bash is classified by what it does. */
 export function classify(tool: string, args: Record<string, unknown>): "search" | "read" | "edit" | "test" | "other" {
-  if (tool === "pij_search") return "search";
+  if (tool === "pijev_search") return "search";
   if (tool === "read") return "read";
   if (tool === "edit" || tool === "write") return "edit";
   if (tool !== "bash") return "other";
   const cmd = String(args.command ?? "");
-  if (/runtests\.py|pytest|python[\d.]*\s+-m\s+(?:unittest|pytest)|\bbin\/test\b/.test(cmd)) return "test";
+  if (/runtests\.py|pytest|python[\d.]*\s+-m\s+(?:unittest|pytest)|\bbin\/test\b|\bnode\b[^|;&]*\s--test\b|\btsx\s+--test\b|\b(?:pnpm|npm|yarn)\s+(?:run\s+)?test\b|\bvitest\b|\bjest\b/.test(cmd)) return "test";
   if (/(?:^|[\s|;&(])(?:rg|grep|egrep|fgrep|ag|ack|find|fd|locate|tree)\b|git\s+(?:grep|ls-files)|(?:^|[\s|;&(])ls\b/.test(cmd)) return "search";
   if (/(?:^|[\s|;&(])(?:cat|head|tail|less|more|wc)\b|sed\s+-n|git\s+(?:show|log|diff|blame)/.test(cmd)) return "read";
   return "other";
@@ -69,10 +69,16 @@ async function prepareWorkspace(inst: Instance, dir: string) {
   });
   const git = (...args: string[]) => exec("git", ["-c", "user.name=eval", "-c", "user.email=eval@local", ...args], { cwd: dir, maxBuffer: 64_000_000 });
   await git("init", "-q");
-  await writeFile(join(dir, ".git", "info", "exclude"), ".venv/\n.home/\n.tmp/\n");
+  await writeFile(join(dir, ".git", "info", "exclude"), ".venv/\n.home/\n.tmp/\nnode_modules\n");
   await git("add", "-A");
   await git("commit", "-qm", "base");
   await Promise.all([mkdir(join(dir, ".home")), mkdir(join(dir, ".tmp"))]);
+  if (inst.runner === "node-test") {
+    // A Node repository: the install step links a dependency tree shared read-only
+    // across workspaces (see --allow-read); nothing is downloaded or built here.
+    if (inst.install) await exec("/bin/bash", ["-lc", inst.install], { cwd: dir, timeout: 600_000 });
+    return;
+  }
   await exec("uv", ["venv", "-q", "--python", values.python!, ".venv"], { cwd: dir });
   if (inst.install) await exec("/bin/bash", ["-lc", inst.install], { cwd: dir, timeout: 600_000 });
   else {
@@ -88,7 +94,7 @@ function prompt(inst: Instance) {
 ${inst.problem_statement.trim()}
 </issue>
 
-Resolve the issue by changing the library source code. Make the minimal correct change; do not modify or add tests. A Python virtual environment at .venv has this checkout installed in editable mode, so you may run targeted tests, for example ${inst.runner === "pytest" ? "\`.venv/bin/python -m pytest <test file>\`" : "\`.venv/bin/python tests/runtests.py <app_label>\` for Django"} — never the full suite. Do not commit. Work autonomously and do not ask questions. When finished, describe the change in one paragraph.`;
+Resolve the issue by changing the library source code. Make the minimal correct change; do not modify or add tests. ${inst.runner === "node-test" ? "The repository's dependencies are installed in node_modules, so you may run targeted tests, for example \`node --import tsx --test <test file>\`" : `A Python virtual environment at .venv has this checkout installed in editable mode, so you may run targeted tests, for example ${inst.runner === "pytest" ? "\`.venv/bin/python -m pytest <test file>\`" : "\`.venv/bin/python tests/runtests.py <app_label>\` for Django"}`} — never the full suite. Do not commit. Work autonomously and do not ask questions. When finished, describe the change in one paragraph.`;
 }
 
 async function runAgent(inst: Instance, arm: Arm, dir: string, workspace: string) {
@@ -96,20 +102,20 @@ async function runAgent(inst: Instance, arm: Arm, dir: string, workspace: string
     "--no-context-files", "--no-skills", "--no-prompt-templates", "--no-extensions", "--offline",
     "--extension", join(project, "eval", "cli-control.ts"), "--session-dir", join(dir, "sessions"), prompt(inst)];
   const argv = arm === "pi" ? [join(project, "node_modules", ".bin", "pi"), ...common]
-    : [join(project, "bin", "pij.mjs"), "--jev-mode", arm === "pij-jev" ? "assist" : "off", ...common];
+    : [join(project, "bin", "pijev.mjs"), "--jev-mode", arm === "pij-jev" ? "assist" : "off", ...common];
   const env: NodeJS.ProcessEnv = {
     PATH: [dirname(process.execPath), "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(":"),
     HOME: join(workspace, ".home"), TMPDIR: join(workspace, ".tmp"), LANG: "en_US.UTF-8",
-    DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY, PIJ_HOME: join(dir, "home"), PI_CODING_AGENT_DIR: join(dir, "home"),
-    PIJ_EVAL_WORKSPACE: workspace, PIJ_EVAL_STATS: join(dir, "control.json"), PIJ_EVAL_PROTECTED_HOME: protectedHome,
-    PIJ_EVAL_TURNS: values.turns, PIJ_EVAL_TOKENS: values.tokens, PIJ_EVAL_SECONDS: values.seconds, PIJ_EVAL_MAX_OUTPUT_TOKENS: values["max-output-tokens"],
+    DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY, PIJEV_HOME: join(dir, "home"), PI_CODING_AGENT_DIR: join(dir, "home"),
+    PIJEV_EVAL_WORKSPACE: workspace, PIJEV_EVAL_STATS: join(dir, "control.json"), PIJEV_EVAL_PROTECTED_HOME: protectedHome,
+    PIJEV_EVAL_TURNS: values.turns, PIJEV_EVAL_TOKENS: values.tokens, PIJEV_EVAL_SECONDS: values.seconds, PIJEV_EVAL_MAX_OUTPUT_TOKENS: values["max-output-tokens"],
     PI_OFFLINE: "1", PI_TELEMETRY: "0", PI_SKIP_VERSION_CHECK: "1",
-    ...(values["allow-read"] ? { PIJ_EVAL_ALLOW_READ: values["allow-read"] } : {}),
+    ...(values["allow-read"] ? { PIJEV_EVAL_ALLOW_READ: values["allow-read"] } : {}),
   };
   if (arm !== "pi") {
-    // Both PiJ arms get the initial source briefing; only the ranker differs.
-    Object.assign(env, { PIJ_SOURCE_BRIEFING: "1", PIJ_JEV_TIMEOUT_MS: "25000" });
-    if (arm === "pij-jev") Object.assign(env, { AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY, PIJ_JEV_PROVIDER: "vercel" });
+    // Both PiJev arms get the initial source briefing; only the ranker differs.
+    Object.assign(env, { PIJEV_SOURCE_BRIEFING: "1", PIJEV_JEV_TIMEOUT_MS: "25000" });
+    if (arm === "pij-jev") Object.assign(env, { AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY, PIJEV_JEV_PROVIDER: "vercel" });
   }
   const trace = createWriteStream(join(dir, "trace.jsonl"), { mode: 0o600 });
   const errors = createWriteStream(join(dir, "stderr.txt"), { mode: 0o600 });
@@ -196,6 +202,22 @@ export function parsePytestResults(output: string): Map<string, string> {
   return status;
 }
 
+/** Node's TAP reporter: `# Subtest: name` opens a block and `ok N - name` closes it at the same
+ * indent, children first. Ids are `file::outer > inner`, matching the screener that chose FAIL_TO_PASS. */
+export function parseNodeTestResults(output: string, file: string): Map<string, string> {
+  const status = new Map<string, string>();
+  let names: string[] = [];
+  for (const line of output.split("\n")) {
+    const indent = Math.floor((line.length - line.trimStart().length) / 4);
+    const s = line.trim();
+    let m = /^# Subtest: (.*)$/.exec(s);
+    if (m) { names = [...names.slice(0, indent), m[1]!]; continue; }
+    m = /^(not ok|ok) \d+ - (.*?)(?: # (SKIP|TODO).*)?$/.exec(s);
+    if (m) status.set(`${file}::${[...names.slice(0, indent), m[2]!].join(" > ")}`, m[3] ? "skipped" : m[1] === "ok" ? "ok" : "FAILED");
+  }
+  return status;
+}
+
 export function testModules(ids: string[]): string[] {
   return [...new Set(ids.flatMap((id) => { const m = /\(([\w.]+)\)$/.exec(id); return m ? [m[1]!.split(".").slice(0, -1).join(".")] : []; }))].sort();
 }
@@ -216,21 +238,32 @@ async function evaluate(inst: Instance, workspace: string, dir: string) {
   try { await git("apply", join(dir, "test.patch")); } catch { testPatchApplied = false; }
   const f2p = JSON.parse(inst.FAIL_TO_PASS) as string[];
   const p2p = JSON.parse(inst.PASS_TO_PASS) as string[];
-  const pytest = inst.runner === "pytest";
-  const labels = pytest ? (inst.test_files ?? []) : testModules([...f2p, ...p2p]);
+  const pytest = inst.runner === "pytest", nodeTest = inst.runner === "node-test";
+  const labels = pytest || nodeTest ? (inst.test_files ?? []) : testModules([...f2p, ...p2p]);
   let output = "";
   let testError: string | undefined;
   const t0 = performance.now();
-  if (testPatchApplied && labels.length) {
+  const status = new Map<string, string>();
+  const env = { PATH: process.env.PATH, HOME: join(workspace, ".home"), TMPDIR: join(workspace, ".tmp"), LANG: "en_US.UTF-8", PYTHONDONTWRITEBYTECODE: "1", ...(nodeTest ? { NODE_ENV: "test" } : {}) };
+  if (testPatchApplied && labels.length && nodeTest) {
+    // One process per file, so every TAP line is attributable to its file.
+    for (const file of labels) {
+      let out = "";
+      try { const r = await exec(process.execPath, ["--import", "tsx", "--test", "--test-reporter=tap", file], { cwd: workspace, timeout: 600_000, maxBuffer: 256_000_000, env }); out = r.stdout + r.stderr; }
+      catch (e: any) { out = `${e.stdout ?? ""}${e.stderr ?? ""}`; if (e.killed) testError = "timeout"; }
+      output += `\n### ${file}\n${out}`;
+      for (const [id, st] of parseNodeTestResults(out, file)) status.set(id, st);
+    }
+  } else if (testPatchApplied && labels.length) {
     const python = join(workspace, ".venv", "bin", "python");
     const args = pytest ? ["-m", "pytest", ...labels, "-rA", "-q", "--no-header", "-p", "no:cacheprovider", "-o", "addopts="] : ["tests/runtests.py", ...labels, "--parallel", "1", "-v", "2"];
     try {
-      const r = await exec(python, args, { cwd: workspace, timeout: 1_200_000, maxBuffer: 256_000_000, env: { PATH: process.env.PATH, HOME: join(workspace, ".home"), LANG: "en_US.UTF-8", PYTHONDONTWRITEBYTECODE: "1" } });
+      const r = await exec(python, args, { cwd: workspace, timeout: 1_200_000, maxBuffer: 256_000_000, env });
       output = r.stdout + r.stderr;
     } catch (e: any) { output = `${e.stdout ?? ""}${e.stderr ?? ""}`; testError = e.killed ? "timeout" : e.code === "ENOENT" ? "no-python" : undefined; }
+    for (const [id, st] of pytest ? parsePytestResults(output) : parseDjangoResults(output)) status.set(id, st);
   }
   await writeFile(join(dir, "tests.txt"), output, { mode: 0o600 });
-  const status = pytest ? parsePytestResults(output) : parseDjangoResults(output);
   const f2pStatus = f2p.map(id => ({ id, status: status.get(id) ?? "missing" }));
   const p2pSeen = p2p.map(id => ({ id, status: status.get(id) })).filter(x => x.status);
   const passing = (st: string) => st === "ok" || st.startsWith("skipped") || st === "expected failure";

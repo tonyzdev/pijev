@@ -13,7 +13,7 @@
   "resolved": 15
  },
  {
-  "label": "PiJ \u65e0 Jev",
+  "label": "PiJev 无 Jev",
   "family": "off",
   "model": "flash",
   "task": "django",
@@ -26,7 +26,7 @@
   "resolved": 14
  },
  {
-  "label": "PiJ+Jev v2",
+  "label": "PiJev+Jev v2",
   "family": "jev",
   "model": "flash",
   "task": "django",
@@ -39,7 +39,7 @@
   "resolved": 14
  },
  {
-  "label": "PiJ+Jev v3",
+  "label": "PiJev+Jev v3",
   "family": "jev",
   "model": "flash",
   "task": "django",
@@ -52,7 +52,7 @@
   "resolved": 16
  },
  {
-  "label": "PiJ+Jev v4",
+  "label": "PiJev+Jev v4",
   "family": "jev",
   "model": "flash",
   "task": "django",
@@ -65,7 +65,7 @@
   "resolved": 14
  },
  {
-  "label": "Pi \u00b7 flash",
+  "label": "Pi · flash",
   "family": "pi",
   "model": "flash",
   "task": "unfamiliar",
@@ -78,7 +78,7 @@
   "resolved": 4
  },
  {
-  "label": "PiJ \u65e0 Jev \u00b7 flash",
+  "label": "PiJev 无 Jev · flash",
   "family": "off",
   "model": "flash",
   "task": "unfamiliar",
@@ -91,7 +91,7 @@
   "resolved": 3
  },
  {
-  "label": "PiJ+Jev \u00b7 flash",
+  "label": "PiJev+Jev · flash",
   "family": "jev",
   "model": "flash",
   "task": "unfamiliar",
@@ -104,7 +104,7 @@
   "resolved": 4
  },
  {
-  "label": "Pi \u00b7 pro",
+  "label": "Pi · pro",
   "family": "pi",
   "model": "pro",
   "task": "unfamiliar",
@@ -117,7 +117,7 @@
   "resolved": 4
  },
  {
-  "label": "PiJ+Jev \u00b7 pro",
+  "label": "PiJev+Jev · pro",
   "family": "jev",
   "model": "pro",
   "task": "unfamiliar",

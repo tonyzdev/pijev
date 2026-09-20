@@ -8,7 +8,7 @@ not ok 1 - post-hoc: journal IDs identify the actual consumed user entries
   ---
   duration_ms: 88.336084
   type: 'test'
-  location: '<candidate>/.pij/attribution-diagnostic.test.ts:3:1833'
+  location: '<candidate>/.pijev/attribution-diagnostic.test.ts:3:1833'
   failureType: 'testCodeFailure'
   error: |-
     Journal IDs must identify their actual consumed user entries
@@ -31,7 +31,7 @@ not ok 1 - post-hoc: journal IDs identify the actual consumed user entries
     1: 'd93de888'
   operator: 'deepStrictEqual'
   stack: |-
-    TestContext.<anonymous> (<candidate>/.pij/attribution-diagnostic.test.ts:92:9)
+    TestContext.<anonymous> (<candidate>/.pijev/attribution-diagnostic.test.ts:92:9)
     async Test.run (node:internal/test_runner/test:1208:7)
     async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
   ...
@@ -40,7 +40,7 @@ not ok 2 - post-hoc: decisions display the new userMessageId field
   ---
   duration_ms: 0.161125
   type: 'test'
-  location: '<candidate>/.pij/attribution-diagnostic.test.ts:3:2864'
+  location: '<candidate>/.pijev/attribution-diagnostic.test.ts:3:2864'
   failureType: 'testCodeFailure'
   error: 'New attribution must be visible in decisions presentation'
   code: 'ERR_ASSERTION'
@@ -49,7 +49,7 @@ not ok 2 - post-hoc: decisions display the new userMessageId field
   actual: false
   operator: '=='
   stack: |-
-    TestContext.<anonymous> (<candidate>/.pij/attribution-diagnostic.test.ts:98:9)
+    TestContext.<anonymous> (<candidate>/.pijev/attribution-diagnostic.test.ts:98:9)
     Test.runInAsyncScope (node:async_hooks:226:14)
     Test.run (node:internal/test_runner/test:1201:25)
     Test.processPendingSubtests (node:internal/test_runner/test:831:18)

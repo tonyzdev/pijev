@@ -12,7 +12,7 @@ Run one fresh generation for each of seven conditions on each task (14 total):
 
 | Condition | Trigger | Decision/action |
 | --- | --- | --- |
-| baseline | none | ordinary PiJ, Jev off |
+| baseline | none | ordinary PiJev, Jev off |
 | output-local | first eight eligible read/search outputs | retain alternating head/tail chunks, half of chunks |
 | output-jev | same trigger/budget | rank all output chunks against task and latest assistant intent; retain half |
 | checkpoint-local | first six changed-source tool batches | dependency-distance selection of two existing tests, execute immediately |
@@ -39,9 +39,9 @@ claim success. Completion can force at most one extra continuation; budget/error
 termination is not treated as a normal final answer. Local completion control
 always requests that same one extra review, covering the extra-work confound.
 
-All conditions use actual bin/pij.mjs, Sonnet 4.6, medium thinking, 64 admitted
+All conditions use actual bin/pijev.mjs, Sonnet 4.6, medium thinking, 64 admitted
 requests, 3 million reported tokens, 16,384 max output tokens/request and 600s.
-All ordinary PiJ Jev features, prior source/dependency briefings and checkpoints
+All ordinary PiJev Jev features, prior source/dependency briefings and checkpoints
 outside the assigned intervention are off. Jev uses a 3.5s deadline and no retries
 for output/finish calls (existing checkpoint transport retains its 1.8s bound).
 Record trigger, actual call/result, selected content/tests, forced continuation,

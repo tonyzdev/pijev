@@ -1,4 +1,4 @@
-# Pi vs PiJ on repositories the model has not memorised
+# Pi vs PiJev on repositories the model has not memorised
 
 The django experiment (`swebench-agent-experiment.md`) ended with a diagnosis: on 13 of 20
 instances plain Pi opened the right file after at most one search, because the model knows
@@ -24,14 +24,14 @@ needed. This experiment moves to code the model is unlikely to have seen.
 - **Corpora**: 6k–150k lines of Python (connectonion 108k, unifideck 121k, Zetta-Embodiment
   150k, EvoSkill 23k, reverify 15k, torrra 10k, pinchbench/skill 6k). Created 2025-07 to 2026-08.
 - Everything else as in the django experiment: deepseek-v4-flash, same prompt, same sandbox,
-  same budgets, three arms (plain Pi; PiJ with the BM25 briefing and no Jev; PiJ with the
+  same budgets, three arms (plain Pi; PiJev with the BM25 briefing and no Jev; PiJev with the
   Jev-ranked whole-file briefing, v4). Instances: `eval/unfamiliar/instances.json`. Results:
   `eval/swebench-agent-results/unfamiliar/`. 39 runs, one rerun after a harness buffer
   overflow (an agent vendored a dependency into its workspace), $0.22 of main-model spend.
 
 ## Results
 
-| | Pi | PiJ, no Jev | PiJ + Jev |
+| | Pi | PiJev, no Jev | PiJev + Jev |
 |---|---:|---:|---:|
 | **resolved** | 4/13 | 3/13 | 4/13 |
 | edited a gold file | 10/13 | 12/13 | 11/13 |
@@ -43,12 +43,12 @@ needed. This experiment moves to code the model is unlikely to have seen.
 | wall time per task | 73 s | **66 s** | 74 s |
 | Jev requests per task | — | — | 4.2 (+8.7 s) |
 
-Paired against plain Pi: PiJ + Jev used fewer search calls on 8 of 13, fewer tool calls on
+Paired against plain Pi: PiJev + Jev used fewer search calls on 8 of 13, fewer tool calls on
 **11 of 13**, and took less wall time on 9 of 13 even carrying 8.7 s of Jev latency.
 
 Phase split (localize / comprehend / verify):
 
-| | Pi | PiJ, no Jev | PiJ + Jev |
+| | Pi | PiJev, no Jev | PiJev + Jev |
 |---|---:|---:|---:|
 | L calls | 7.7 | **4.7** | 7.1 |
 | C calls | 11.2 | 11.1 | **8.7** |
@@ -67,7 +67,7 @@ despite paying for its requests.
 **It still does not change what gets solved.** 4/13 in both. Five instances were solved by
 no arm and four by every arm; the outcome is set by whether deepseek-v4-flash can produce the
 fix, not by whether it finds the file — plain Pi edited a gold file on 10 of 13 after its
-ten searches. Localisation is achievable by grep on every task here; PiJ makes it cheaper,
+ten searches. Localisation is achievable by grep on every task here; PiJev makes it cheaper,
 not possible.
 
 **Prompt tokens are flat** (371k vs 372k) because four runs per arm exhaust the 600k budget
@@ -76,13 +76,13 @@ the same reason.
 
 ## The same tasks with a stronger main model (deepseek-v4-pro)
 
-Plain Pi and PiJ + Jev only (26 runs, $0.51); `eval/swebench-agent-results/unfamiliar-pro/`.
+Plain Pi and PiJev + Jev only (26 runs, $0.51); `eval/swebench-agent-results/unfamiliar-pro/`.
 
 ![flash vs pro](figures/unfamiliar-flash-vs-pro.png)
 
-*Each task as an arrow from its plain-Pi run (grey) to its PiJ + Jev run (magenta) in tool calls against prompt tokens, flash on the left and pro on the right, numbered by the table between them; magenta arrows are cheaper on both axes, white rings mark resolved runs. Two arm means would hide this — the per-task pairing is the evidence. (`eval/figures/unfamiliar-flash-vs-pro.py`)*
+*Each task as an arrow from its plain-Pi run (grey) to its PiJev + Jev run (magenta) in tool calls against prompt tokens, flash on the left and pro on the right, numbered by the table between them; magenta arrows are cheaper on both axes, white rings mark resolved runs. Two arm means would hide this — the per-task pairing is the evidence. (`eval/figures/unfamiliar-flash-vs-pro.py`)*
 
-| | Pi | PiJ + Jev |
+| | Pi | PiJev + Jev |
 |---|---:|---:|
 | **resolved** | 4/13 | 4/13 |
 | FAIL_TO_PASS passed | 4 | 5 |
@@ -102,7 +102,7 @@ runs exhaust the budget. The comprehension phase, which flash barely shortened, 
 (11.9 → 5.4): the stronger model acts on the briefing instead of re-deriving it. Jev latency
 per task fell to 3.6 s, so the Jev arm is not slower.
 
-Outcome is still 4/13 each, but not the same four: PiJ + Jev resolved `connectonion-1556`
+Outcome is still 4/13 each, but not the same four: PiJev + Jev resolved `connectonion-1556`
 (a five-file fix plain Pi ran out of budget on) and lost `Zetta-Embodiment-23` to a
 PASS_TO_PASS regression after passing its FAIL_TO_PASS tests. Eight of the thirteen tasks
 were solved by no arm under either model. The stronger model did not raise the floor: the
@@ -114,20 +114,20 @@ localisation.
 ![execution strips, v4-pro](figures/execution-strips-unfamiliar-pro.png)
 
 *Every run as a strip of tool calls (v4-pro; the flash pair is
-`figures/execution-strips-unfamiliar-flash.png`): plain Pi above, PiJ + Jev below, one block per
+`figures/execution-strips-unfamiliar-flash.png`): plain Pi above, PiJev + Jev below, one block per
 call coloured by kind, a white frame on the first `read` or `edit` of a file the reference patch
-edits, and a magenta block for the briefing PiJ receives in its first prompt without a call.
+edits, and a magenta block for the briefing PiJev receives in its first prompt without a call.
 (`eval/figures/execution-strips.py`; per-call data in
 `eval/swebench-agent-results/execution-strips.json`.)*
 
 The tables above are summaries of these strips, and the strips say it more plainly. With v4-pro
-the PiJ strip is shorter on 12 of 13 tasks, −25% calls in total (flash: 11 of 13, −18%). Plain
+the PiJev strip is shorter on 12 of 13 tasks, −25% calls in total (flash: 11 of 13, −18%). Plain
 Pi's strips open with blue: it reaches a gold file at a median of the third call (flash: the
-fourth), after one or two searches, and never on the first; PiJ's open with the white frame on
+fourth), after one or two searches, and never on the first; PiJev's open with the white frame on
 the first call on 7 of 13, because the briefing already named the file. What Jev buys at the
 start is therefore one or two searches per task — grep finds these files too — and the rest of
 the shortening happens after the file is found, between the first gold read and the first
-edit. The one task where PiJ's strip is longer under pro, `connectonion-1556`, is the one it
+edit. The one task where PiJev's strip is longer under pro, `connectonion-1556`, is the one it
 resolved and Pi exhausted the budget on. The row ends show what the tables show: 4 vs 4, and
 the same long, budget-exhausted strips on the tasks neither arm solves.
 
@@ -148,11 +148,11 @@ A launch-style Pareto chart needs many systems and a y-axis that varies. Task co
 not vary across these configurations, so the chart uses the quantity that does: the share of
 runs whose first tool call touches the file the reference patch edits. Cost is per task,
 main model plus Jev (Jev at the gateway's measured ≈$0.28 per million input tokens); the
-dashed segment on each PiJ + Jev point is Jev's share of it. Each panel has its own frontier
+dashed segment on each PiJev + Jev point is Jev's share of it. Each panel has its own frontier
 because the two task sets are not comparable on the y-axis.
 
-Two readings. Jev buys localisation with money: on django the frontier runs Pi → PiJ (BM25)
-→ PiJ + Jev v4 → v3, and on the unfamiliar set Pi → BM25 → PiJ + Jev; nothing is both
+Two readings. Jev buys localisation with money: on django the frontier runs Pi → PiJev (BM25)
+→ PiJev + Jev v4 → v3, and on the unfamiliar set Pi → BM25 → PiJev + Jev; nothing is both
 cheaper and better-localising than the Jev arms, and nothing on the frontier localises as
 well. But at deepseek-v4-flash prices, **Jev's cost per task ($0.011–0.014) is three to
 four times the main model's**, and the main-model tokens it saves are worth less than the

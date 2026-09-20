@@ -55,8 +55,8 @@ const project = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const protectedHome = await realpath(homedir());
 const runId = placementPolicy !== "none" ? `${new Date().toISOString().replaceAll(":", "-")}-${values.task}-${values.sample}-placement-${placementPolicy}` : `${new Date().toISOString().replaceAll(":", "-")}-${values.task === "attribution" ? "" : `${values.task}-${values.sample}-`}${projectEvidenceMode !== "none" ? `project-${projectEvidenceMode}` : evidenceMode === "none" ? `checkpoint-${values.checkpoint}` : `${apiEvidence ? "api" : "dependency"}-${evidenceMode}`}`;
 const source = await captureSourceProvenance(project);
-const output = join(project, ".pij", "evals", runId);
-const root = await realpath(await mkdtemp(join(process.platform === "darwin" ? "/private/tmp" : tmpdir(), "pij-df-")));
+const output = join(project, ".pijev", "evals", runId);
+const root = await realpath(await mkdtemp(join(process.platform === "darwin" ? "/private/tmp" : tmpdir(), "pijev-df-")));
 const cwd = join(root, "project");
 const exec = promisify(execFile);
 await mkdir(output, { recursive: true, mode: 0o700 });
@@ -68,7 +68,7 @@ await exec("npm", ["ci", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd, 
 const task = await readFile(join(project, "eval", fixtureDirectory, "task.md"), "utf8");
 const evidence = evidenceMode === "none" ? undefined : await (apiEvidence ? dependencyApiEvidence : dependencyEvidence)({
   cwd, query: task, mode: evidenceMode as "lexical" | "jev",
-  provider: evidenceMode === "jev" ? new JevClient(loadConfig({ ...process.env, PIJ_JEV_PROVIDER: "vercel" })) : undefined,
+  provider: evidenceMode === "jev" ? new JevClient(loadConfig({ ...process.env, PIJEV_JEV_PROVIDER: "vercel" })) : undefined,
   signal: AbortSignal.timeout(15000),
 });
 if (evidence) await writeFile(join(output, "dependency-evidence.json"), JSON.stringify(evidence, null, 2), { mode: 0o600 });
@@ -78,7 +78,7 @@ const preprocessingStarted = performance.now();
 try {
   projectEvidence = projectEvidenceMode === "none" ? undefined : await projectSourceEvidence({
     cwd, query: task, mode: projectEvidenceMode as "lexical" | "jev",
-    provider: projectEvidenceMode === "jev" ? new JevClient({ ...loadConfig({ ...process.env, PIJ_JEV_PROVIDER: "vercel" }), timeoutMs: 10000 }) : undefined,
+    provider: projectEvidenceMode === "jev" ? new JevClient({ ...loadConfig({ ...process.env, PIJEV_JEV_PROVIDER: "vercel" }), timeoutMs: 10000 }) : undefined,
     signal: AbortSignal.timeout(45000),
     onBatch: async (batch, index) => { await writeFile(join(output, `project-batch-${index}.json`), JSON.stringify(batch, null, 2), { mode: 0o600 }); },
   });
@@ -95,7 +95,7 @@ await writeFile(join(output, "task.txt"), prompt, { mode: 0o600 });
 const trace = createWriteStream(join(output, "cli-trace.jsonl"), { mode: 0o600 });
 const errors = createWriteStream(join(output, "stderr.txt"), { mode: 0o600 });
 const child = spawn(process.execPath, [
-  join(project, "bin", "pij.mjs"), "--jev-mode", values.mode,
+  join(project, "bin", "pijev.mjs"), "--jev-mode", values.mode,
   "--mode", "json", "--print", "--provider", "vercel-ai-gateway", "--model", values.model!, "--thinking", values.thinking!,
   "--no-context-files", "--no-skills", "--no-prompt-templates", "--no-extensions", "--offline",
   "--extension", join(project, "eval", "cli-control.ts"),
@@ -105,13 +105,13 @@ const child = spawn(process.execPath, [
 ], {
   cwd, detached: true, stdio: ["ignore", "pipe", "pipe", "ipc"],
   env: {
-    ...shellEnvironment(cwd), AI_GATEWAY_API_KEY: key, PIJ_JEV_PROVIDER: "vercel", PIJ_HOME: join(output, "home"),
-    PIJ_EVAL_WORKSPACE: cwd, PIJ_EVAL_STATS: join(output, "control.json"), PIJ_EVAL_TURNS: values.turns,
-    PIJ_EVAL_PROTECTED_HOME: protectedHome,
-    PIJ_PLACEMENT_POLICY: placementPolicy, PIJ_PLACEMENT_TASK: values.task, PIJ_PLACEMENT_LOG: join(output, "placements.jsonl"),
-    PIJ_CHECKPOINT_MODE: values.checkpoint, PIJ_CHECKPOINT_LOG: join(output, "checkpoints.jsonl"),
-    PIJ_EVAL_TOKENS: String(budgets.tokens), PIJ_EVAL_SECONDS: String(budgets.seconds), PIJ_EVAL_MAX_OUTPUT_TOKENS: String(budgets.maxOutputTokens),
-    PIJ_SOURCE_BRIEFING: values.briefing ? "1" : "0",
+    ...shellEnvironment(cwd), AI_GATEWAY_API_KEY: key, PIJEV_JEV_PROVIDER: "vercel", PIJEV_HOME: join(output, "home"),
+    PIJEV_EVAL_WORKSPACE: cwd, PIJEV_EVAL_STATS: join(output, "control.json"), PIJEV_EVAL_TURNS: values.turns,
+    PIJEV_EVAL_PROTECTED_HOME: protectedHome,
+    PIJEV_PLACEMENT_POLICY: placementPolicy, PIJEV_PLACEMENT_TASK: values.task, PIJEV_PLACEMENT_LOG: join(output, "placements.jsonl"),
+    PIJEV_CHECKPOINT_MODE: values.checkpoint, PIJEV_CHECKPOINT_LOG: join(output, "checkpoints.jsonl"),
+    PIJEV_EVAL_TOKENS: String(budgets.tokens), PIJEV_EVAL_SECONDS: String(budgets.seconds), PIJEV_EVAL_MAX_OUTPUT_TOKENS: String(budgets.maxOutputTokens),
+    PIJEV_SOURCE_BRIEFING: values.briefing ? "1" : "0",
     PI_OFFLINE: "1", PI_TELEMETRY: "0", PI_SKIP_VERSION_CHECK: "1",
   },
 });
@@ -145,12 +145,12 @@ const interrupt = () => { interrupted = true; stopChild(); };
 process.on("SIGTERM", interrupt);
 child.on("message", (message) => {
   const event = message as { type?: string; mode?: string; policy?: string; phase?: string; pid?: number };
-  if (event.type === "pij_placement_ready" && event.policy === placementPolicy) { placementReady = true; child.send({ type: "pij_placement_ack" }); }
-  if (event.type === "pij_checkpoint_ready" && event.mode === values.checkpoint) {
+  if (event.type === "pijev_placement_ready" && event.policy === placementPolicy) { placementReady = true; child.send({ type: "pijev_placement_ack" }); }
+  if (event.type === "pijev_checkpoint_ready" && event.mode === values.checkpoint) {
     checkpointReady = true;
-    child.send({ type: "pij_checkpoint_ack" });
+    child.send({ type: "pijev_checkpoint_ack" });
   }
-  if (event.type === "pij_checkpoint_process" && Number.isSafeInteger(event.pid) && event.pid! > 0) {
+  if (event.type === "pijev_checkpoint_process" && Number.isSafeInteger(event.pid) && event.pid! > 0) {
     if (event.phase === "start") { checkpointGroups.add(event.pid!); if (stopping) killCheckpoint(event.pid!); }
     else if (event.phase === "stop") checkpointGroups.delete(event.pid!);
   }

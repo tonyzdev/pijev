@@ -19,15 +19,15 @@ These are hypotheses, not a feature checklist. Reject or revise experiments that
 
 ## Experiment 1 design
 
-Extend the existing `pij_search` tool, keeping literal-pattern search available. A query without patterns enables bounded source discovery: enumerate permitted source files, build small source cards, select candidates, and return actual source windows with line references. Candidate selection and window relevance are independent typed judgments. Do not return invented summaries. Small source windows keep the inference local; lexical retrieval and ordinary read/bash remain recovery paths.
+Extend the existing `pijev_search` tool, keeping literal-pattern search available. A query without patterns enables bounded source discovery: enumerate permitted source files, build small source cards, select candidates, and return actual source windows with line references. Candidate selection and window relevance are independent typed judgments. Do not return invented summaries. Small source windows keep the inference local; lexical retrieval and ordinary read/bash remain recovery paths.
 
 The initial prototype is opt-in through an explicit natural-language tool invocation. It must state file/window limits, truncation, fallback and ranking status. Only measured gains justify enabling automatic retrieval by default. The comparison must separate the benefit of a new retrieval tool from the incremental contribution of Jev.
 
 ### Revision: optional initial evidence briefing
 
-The initial live repair runs and the real CLI repository task did not call `pij_search`. Adding a tool did not replace the model's existing sequence of searches and reads. This is a negative adoption observation, not a relevance-accuracy measurement.
+The initial live repair runs and the real CLI repository task did not call `pijev_search`. Adding a tool did not replace the model's existing sequence of searches and reads. This is a negative adoption observation, not a relevance-accuracy measurement.
 
-An explicitly enabled `PIJ_SOURCE_BRIEFING=1` experiment now acquires source evidence before the first coding-model request of each user prompt. It injects at most six distinct files' exact excerpts from the same bounded candidates. Assist reranks with Jev; off and observe inject deterministic discovery order, so a paired off/assist comparison isolates Jev's contribution. The default remains disabled. No skills, tools or existing conversation messages are removed. Each new prompt refreshes the snapshot, which is labeled as predating edits. Missing discovery tools or failed evaluation leave ordinary investigation available. This is a local workspace mechanism: excluded dependency APIs and unscanned sources are still gaps.
+An explicitly enabled `PIJEV_SOURCE_BRIEFING=1` experiment now acquires source evidence before the first coding-model request of each user prompt. It injects at most six distinct files' exact excerpts from the same bounded candidates. Assist reranks with Jev; off and observe inject deterministic discovery order, so a paired off/assist comparison isolates Jev's contribution. The default remains disabled. No skills, tools or existing conversation messages are removed. Each new prompt refreshes the snapshot, which is labeled as predating edits. Missing discovery tools or failed evaluation leave ordinary investigation available. This is a local workspace mechanism: excluded dependency APIs and unscanned sources are still gaps.
 
 The current off/assist runs compare the complete assist configuration: assist also supplies Jev failure-triage advice. They do not identify the effect of ranking alone. A ranking-specific experiment must hold triage constant, and repeated runs are needed before attributing mixed timing or cost differences to either mechanism.
 
@@ -48,6 +48,6 @@ Global constraints:
 
 Use multi-file repair tasks with cross-cutting invariants and independent behavioral acceptance tests kept outside agent workspaces. Include ordinary visible tests and plausible neighboring implementations; avoid designing fixtures to fit the retrieval algorithm. Verify the original implementation fails acceptance and an independent reference repair passes before using a task to score agents.
 
-Compare plain Pi, PiJ off, and PiJ assist with the same coding model, prompt, tool-round/token/time budgets, clean initial files, and repeated runs. Record task acceptance, tool calls, coding-model usage/cost, Jev usage/wait/fallback, end-to-end time and errors. No after-the-fact threshold changes on held-out cases. Add pinned real-world repository tasks after the harness works; constructed tasks alone cannot establish general coding performance.
+Compare plain Pi, PiJev off, and PiJev assist with the same coding model, prompt, tool-round/token/time budgets, clean initial files, and repeated runs. Record task acceptance, tool calls, coding-model usage/cost, Jev usage/wait/fallback, end-to-end time and errors. No after-the-fact threshold changes on held-out cases. Add pinned real-world repository tasks after the harness works; constructed tasks alone cannot establish general coding performance.
 
 Keep an experiment ledger with failed runs and rejected ideas. Publish incremental tested commits, not unqualified speed or accuracy claims.

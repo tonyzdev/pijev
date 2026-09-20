@@ -7,7 +7,7 @@ import { DecisionJournal, readRecentDecisions } from "../src/telemetry.js";
 import { formatDecisions } from "../src/ui.js";
 
 test("journals only decision metadata, including cache and fallback state", async (t) => {
-  const home = await mkdtemp(join(tmpdir(), "pij-journal-"));
+  const home = await mkdtemp(join(tmpdir(), "pijev-journal-"));
   t.after(() => rm(home, { recursive: true, force: true }));
   const journal = new DecisionJournal(home);
   await journal.record("assist", { kind: "skill_shortlist", questionCount: 2, result: {
@@ -28,7 +28,7 @@ test("journals only decision metadata, including cache and fallback state", asyn
 });
 
 test("decision scopes retain only runtime identifiers and are readable beside legacy records", async (t) => {
-  const home = await mkdtemp(join(tmpdir(), "pij-scoped-journal-"));
+  const home = await mkdtemp(join(tmpdir(), "pijev-scoped-journal-"));
   t.after(() => rm(home, { recursive: true, force: true }));
   const journal = new DecisionJournal(home);
   const observation = { kind: "code_rank" as const, questionCount: 2, result: { status: "fallback" as const, reason: "timeout" as const, latencyMs: 1 } };

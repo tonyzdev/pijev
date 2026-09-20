@@ -10,17 +10,17 @@ node --env-file=.env --import tsx eval/run.ts --task document-request-lifecycle 
 node --env-file=.env --import tsx eval/run.ts --task document-request-lifecycle --mode assist --briefing --turns 36 --tokens 450000 --seconds 360
 ```
 
-Use `queue-cursor-pagination` as the second task. Without `--briefing`, the optional natural-language search tool remains available in PiJ modes. `--mode plain` runs the ordinary Pi tool set without PiJ. Observe still incurs Jev latency and usage; it is not a zero-cost baseline. Each invocation creates a fresh workspace and cold decision cache. Compare repeat runs under the same model and budgets.
+Use `queue-cursor-pagination` as the second task. Without `--briefing`, the optional natural-language search tool remains available in PiJev modes. `--mode plain` runs the ordinary Pi tool set without PiJev. Observe still incurs Jev latency and usage; it is not a zero-cost baseline. Each invocation creates a fresh workspace and cold decision cache. Compare repeat runs under the same model and budgets.
 
-For a real repository task through the actual `pij` executable:
+For a real repository task through the actual `pijev` executable:
 
 ```sh
 node --env-file=.env --import tsx eval/dogfood.ts --mode assist --briefing --turns 36 --tokens 450000 --seconds 360
 ```
 
-This starts from public PiJ revision `4e1cdef` and asks for actual session/user-turn identity in decision journals. It uses the current built executable; build first. The resulting patch is preserved for independent review, never automatically committed or applied to the development repository. This task's requirements need behavioral checking beyond its existing test suite.
+This starts from public PiJev revision `4e1cdef` and asks for actual session/user-turn identity in decision journals. It uses the current built executable; build first. The resulting patch is preserved for independent review, never automatically committed or applied to the development repository. This task's requirements need behavioral checking beyond its existing test suite.
 
-Both runners save exact source/build digests, budgets, tool counts, provider usage and results under ignored `.pij/evals/`. SDK task runs save `trace.json` and independent acceptance results; real CLI runs save `cli-trace.jsonl`, the Pi session and control statistics. These traces can contain task source and are not publishable artifacts. The ledger publishes sanitized findings only. A changed source digest invalidates a supposedly fixed-revision comparison.
+Both runners save exact source/build digests, budgets, tool counts, provider usage and results under ignored `.pijev/evals/`. SDK task runs save `trace.json` and independent acceptance results; real CLI runs save `cli-trace.jsonl`, the Pi session and control statistics. These traces can contain task source and are not publishable artifacts. The ledger publishes sanitized findings only. A changed source digest invalidates a supposedly fixed-revision comparison.
 
 The default per-response output allowance is 16,384 tokens, configurable with `--max-output-tokens`. The request budget stops new admissions; the total-token budget is checked after reported usage and can overshoot by one response's unknown input usage. Wall time stops an outstanding run. Usage prices are pinned catalog estimates, not billing receipts, and do not include Jev charges.
 

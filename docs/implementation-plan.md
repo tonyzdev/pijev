@@ -1,4 +1,4 @@
-# PiJ Terminal Implementation Plan
+# PiJev Terminal Implementation Plan
 
 **Goal:** Deliver a runnable terminal coding agent based on Pi with Jev-assisted skill selection, code search and failure triage.
 
@@ -10,7 +10,7 @@
 
 ## Global constraints
 
-- Implement in the PiJ repository; publish the initial version on `main`.
+- Implement in the PiJev repository; publish the initial version on `main`.
 - Exact dependency versions; install with scripts disabled; no publication or real-provider credentials required for verification.
 - No raw prompts, code, tool logs or secrets in telemetry.
 - Every external judgment has a deadline and a normal-Pi fallback.
@@ -35,10 +35,10 @@ Files: `src/search.ts`, `test/search.test.ts`.
 
 ## 3. Product CLI and Pi integration
 
-Files: `bin/pij.mjs`, `src/cli.ts`, `src/config.ts`, `src/extension.ts`, `src/ui.ts`, `test/config.test.ts`, `test/integration.test.ts`.
+Files: `bin/pijev.mjs`, `src/cli.ts`, `src/config.ts`, `src/extension.ts`, `src/ui.ts`, `test/config.test.ts`, `test/integration.test.ts`.
 
 - [x] Test configuration validation, mode behavior, isolated home, doctor output redaction, and headless Pi hooks with a local deterministic provider.
-- [x] Implement PiJ commands, help, header, status, decision views and extension hooks.
+- [x] Implement PiJev commands, help, header, status, decision views and extension hooks.
 - [x] In assist mode inject skill advice, rank search results and append fixed failure hints; observe logs only; off performs no requests.
 - [x] Ensure cancel/session switch clears run-scoped state and failures never corrupt tool results.
 

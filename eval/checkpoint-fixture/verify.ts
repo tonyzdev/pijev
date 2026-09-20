@@ -114,7 +114,7 @@ async function main() {
     process.exitCode = passed ? 0 : 1; return;
   }
   if (command !== "verify") throw new Error(`Unknown command: ${command}`);
-  const temporary = await mkdtemp(join(tmpdir(), "pij-checkpoint-validation-"));
+  const temporary = await mkdtemp(join(tmpdir(), "pijev-checkpoint-validation-"));
   const checks: Record<string, unknown> = {};
   let matched = true;
   try {
@@ -141,7 +141,7 @@ async function main() {
           const forbiddenFiles = ${JSON.stringify([join(repository, "package.json"), join(fixture, "reference.patch")])};
           for (const path of forbiddenFiles) assert.throws(() => fs.readFileSync(path), { code: "EPERM" });
           assert.throws(() => fs.readdirSync(${JSON.stringify(homedir())}), { code: "EPERM" });
-          assert.ok(fs.readFileSync("src/extension.ts", "utf8").includes("createPijExtension"));
+          assert.ok(fs.readFileSync("src/extension.ts", "utf8").includes("createPijevExtension"));
           assert.ok(fs.readFileSync("node_modules/tsx/package.json", "utf8").includes("tsx"));
           assert.ok(!Object.keys(process.env).some((key) => /API_KEY|TOKEN|SECRET|PROXY|AUTH/i.test(key)));
           console.log(JSON.stringify({ blockedHome: true, blockedDevelopmentRepository: true, blockedReference: true, allowedCandidateSource: true, allowedDependencies: true, credentialEnvironmentStripped: true }));
