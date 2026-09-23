@@ -16,7 +16,9 @@ const MAX_FILES = 20_000;
 const MAX_FILE_BYTES = 256 * 1024;
 const MAX_READ_BYTES = 48 * 1024 * 1024;
 // Ranking is per file, so the shortlist is the recall ceiling Jev inherits.
-const SHORTLIST = 100;
+// Candidates Jev scores. Measured on 20 SWE-bench tasks and 24 private-repository tasks (2026-09-23):
+// 50 keeps every rank-1 result of 100 at half the Jev tokens; 30 loses three of 24 on the private repo.
+const SHORTLIST = 50;
 const MAX_EXCERPT_BYTES = 1800;
 const MAX_OUTLINE_BYTES = 1200;
 const READ_DEADLINE_MS = 8000;

@@ -79,8 +79,8 @@ test("candidates cover diverse files deterministically instead of the alphabetic
   for (let i = 0; i < 140; i++) await writeFile(join(cwd, "src", `file${String(i).padStart(3, "0")}.ts`), `export function processRequest${i}() {\n  return ${i};\n}\n`);
   const result = await discoverCode({ cwd, query: "request processing" });
   // One candidate per file: ranking decides which file to read, not which window.
-  assert.equal(result.candidates.length, 100);
-  assert.equal(new Set(result.candidates.map((item) => item.path)).size, 100);
+  assert.equal(result.candidates.length, 50);
+  assert.equal(new Set(result.candidates.map((item) => item.path)).size, 50);
   assert.ok(result.candidates.some((item) => Number(item.path.match(/file(\d+)/)![1]) >= 100));
   assert.deepEqual(await discoverCode({ cwd, query: "request processing" }), result);
   assert.equal(result.truncated, true);
@@ -145,13 +145,13 @@ test("enumeration and aggregate reads stop at their bounds with explicit truncat
   await Promise.all(Array.from({ length: 1002 }, (_, i) => writeFile(join(cwd, "src", `f${i}.ts`), "export const value = true;\n")));
   const many = await discoverCode({ cwd, query: "value", maxFiles: 1000 });
   assert.ok(many.filesScanned <= 1000);
-  assert.ok(many.candidates.length <= 100);
+  assert.ok(many.candidates.length <= 50);
   assert.equal(many.truncated, true);
   // Without a caller cap the same tree is fully enumerated, so the shortlist is
   // the only thing discarding files.
   const all = await discoverCode({ cwd, query: "value" });
   assert.equal(all.filesScanned, 1002);
-  assert.equal(all.candidates.length, 100);
+  assert.equal(all.candidates.length, 50);
   await rm(join(cwd, "src"), { recursive: true });
   await mkdir(join(cwd, "src"));
   const content = "export const value = true;\n" + "// filler\n".repeat(26_211);

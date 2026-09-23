@@ -86,6 +86,8 @@ pijev
 
 **在第一次调用之前就把正确的文件放到模型面前。** 在仓库规模的语料上（django 各实例的 base commit，约 2,000 个 Python 文件），Jev 对 BM25 前 100 名重排后，参考补丁所改文件的 recall@1 从 0.25 升到 **0.74**，recall@10 从 0.74 升到 **0.96**；第一个目标文件的中位排名从 4 到 **1**，排在第 1 位的实例从 5/20 变为 17/20，没有任何实例变差。这不是"把测试文件往后排"的规则能解释的——Jev 的前 10 里测试文件反而比 BM25 *更多*，因为它把对应的测试留在实现旁边。整轮测量花 $0.35，没有调用任何主模型。（[细节](docs/swebench-retrieval-experiment.md)，英文）
 
+**在任何模型都没见过的代码上同样成立。** 在一个私有的生产级 TypeScript monorepo 上（约 11.5 万行，创建时间晚于各模型的训练截止），取 24 个已合并的 PR：Jev 把 PR 要改的第一个文件排得比 BM25 更靠前的任务是 **24 个里的 24 个，没有一个更靠后**（精确符号检验 p = 1.2 × 10⁻⁷）；该文件的中位排名从 11 变成 **1**，排第 1 的有 17 个，BM25 是 0 个。查询用的是 PR 自己的描述，截掉验证记录并删掉所有文件路径；描述大多是中文，这对 BM25 的词匹配也是一种不利。仓库保持私有，只提交汇总数字。（[细节](docs/shortlist-and-private-repo.md)，英文）
+
 **于是 agent 不再花调用去找它。** PiJev 里 Jev 相关度不低于 0.8 的首位文件会整篇进入第一轮 prompt。在模型没见过的仓库上，原版 Pi 第一步从不打开目标文件（0/13），中位要到第 3–4 步才碰到；PiJev + Jev 在 13 次里有 7 次第一步就打开了。grep 当然也能找到这些文件——晚一到三步，省下的正是这一到三步：搜索次数减少四分之一到五分之二。
 
 **整条路径变短，主模型越强越明显。** 工具调用在 django 上减 16%，陌生仓库 v4-flash 减 18%、v4-pro 减 25%，更短的任务分别是 15/20、11/13、12/13。v4-pro 下，从找到文件到第一次修改的阶段减半（11.9 → 5.4 次），prompt token 减 22%——更强的模型直接按 briefing 行动，而不是自己再推导一遍；django 上有 5 个运行连一次 `read` 都没有就改了 briefing 给的文件。（[陌生仓库](docs/unfamiliar-repo-experiment.md) · [django](docs/swebench-agent-experiment.md)，英文）
@@ -99,19 +101,19 @@ pijev
 ### Jev（目前）没有改变什么
 
 - **解决率。** 陌生仓库两个模型下都是 4 比 4，django 15 比 14——每题一次运行，这是噪声。13 个陌生仓库任务里有 8 个没有任何一条臂解出来：败在修复本身，不在找文件。Jev 缩短的是路径，不是结果。
-- **DeepSeek 价位下的成本。** Jev 排序每题 $0.011–0.014，是主模型的 3–4 倍，省下的主模型 token 抵不回来。账要翻正需要更贵的主模型——Sonnet 级别每题 $0.5–1.3 的区间可以，DeepSeek 不行。（[前沿图与成本账](docs/unfamiliar-repo-experiment.md#the-frontier-drawn-honestly)，英文）
+- **DeepSeek 价位下的成本——现已减半。** 上面的 agent 实验里 Jev 每题 $0.011–0.014，是 deepseek-v4-flash 的 3–4 倍；而它省下的 prompt token 几乎不值钱：其中 94–95% 是 DeepSeek 缓存命中，每百万 $0.0028。Jev 的开销主要来自 briefing 给 BM25 前 100 个候选打分；在两组任务上做的 shortlist 消融显示，**50 个候选就能保住 100 个时的全部第 1 名结果，token 减半**，所以默认值已改成 50，Jev 每题约 $0.007–0.008——不到 v4-pro 主模型成本的一半，但仍高于 v4-flash。agent 实验还没有在 50 下重跑。（[消融](docs/shortlist-and-private-repo.md) · [前沿图与成本账](docs/unfamiliar-repo-experiment.md#the-frontier-drawn-honestly)，英文）
 - **墙钟时间。** 陌生仓库持平（pro 下 Jev 每题多 3.6 秒），django 变慢（42 → 55 秒）。
 - **证据规模。** 33 题，每种配置一次运行：够支撑努力类指标（显著，见上），不够比较差一题的结果指标。
 
 ![20 个 SWE-bench Verified django 任务上 Pi 与 PiJev + Jev 的每一次工具调用](docs/figures/execution-strips-django.zh.png)
 
-全部可从仓库复现：harness（`eval/swebench-agent.ts`、`eval/swebench-retrieval.ts`）、陌生仓库任务的构造（`eval/unfamiliar/`）、每次运行的结果（`eval/swebench-agent-results/`）和画图脚本（`eval/figures/`）。完整记录（英文）：[检索召回](docs/swebench-retrieval-experiment.md) · [django agent](docs/swebench-agent-experiment.md) · [陌生仓库](docs/unfamiliar-repo-experiment.md)。
+全部可从仓库复现：harness（`eval/swebench-agent.ts`、`eval/swebench-retrieval.ts`）、陌生仓库任务的构造（`eval/unfamiliar/`）、每次运行的结果（`eval/swebench-agent-results/`）和画图脚本（`eval/figures/`）。完整记录（英文）：[检索召回](docs/swebench-retrieval-experiment.md) · [django agent](docs/swebench-agent-experiment.md) · [陌生仓库](docs/unfamiliar-repo-experiment.md) · [shortlist 大小与私有代码库](docs/shortlist-and-private-repo.md)。
 
 ## 三项 Jev 能力
 
 **技能建议。** 每次用户请求开始时，Jev 根据请求筛选技能，再阅读最多三个候选的说明和指令片段，确认是否适用。主模型收到最多两个建议，完整技能目录仍保留。只处理允许模型调用的技能；超过 254 个候选时跳过推荐。技能判断具有建议性质，不保证主模型一定加载或正确使用它。
 
-**源码搜索。** `pijev_search` 提供字面关键词时使用 ripgrep 检索；省略 `patterns` 时，根据自然语言问题扫描真实源码窗口，再让 Jev 排序。保留原文件路径、行号和原文；最多提供 32 个候选，默认返回 8 个片段。自然语言扫描最多枚举 1,000 个合规文件、每文件 256 KiB、总计 4 MiB，超出部分不被检索。它不是全仓库语义索引。
+**源码搜索。** `pijev_search` 提供字面关键词时使用 ripgrep 检索；省略 `patterns` 时，根据自然语言问题扫描真实源码窗口，再让 Jev 排序。保留原文件路径、行号和原文；BM25 按整文件排序后取前 50 个交给 Jev 打分（每批不超过 32 KB），默认返回 8 个片段。自然语言扫描最多读取 20,000 个合规文件、每文件 256 KiB、总计 48 MiB，限时 8 秒，超出部分不被检索，结果中会注明。它不是全仓库语义索引。
 
 **实验性源码摘录。** 设置 `PIJEV_SOURCE_BRIEFING=1` 后，每条新请求开始时自动提供最多三个文件的真实摘录；Jev 相关度不低于 0.8 且不超过 Pi 的 50 KB 读取上限的首位文件会整篇提供。`assist` 使用 Jev 排序；`off` 和 `observe` 使用 BM25。摘录是编辑前的快照，后续仍需核对当前源码。这项实验默认关闭；在上方[实测](#实测)里正是它让带子变短，但没有改变解决率。
 

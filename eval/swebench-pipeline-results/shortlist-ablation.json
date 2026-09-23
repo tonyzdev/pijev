@@ -1,0 +1,1294 @@
+{
+ "swebench": {
+  "100": {
+   "tasks": 20,
+   "ranked": 20,
+   "bm25": {
+    "recall@1": 0.15,
+    "recall@5": 0.45,
+    "recall@10": 0.5023809523809524,
+    "rank1": 3,
+    "top5": 9,
+    "missed": 1,
+    "medianFirstGold": 7.0
+   },
+   "jev": {
+    "recall@1": 0.6648809523809524,
+    "recall@5": 0.8922619047619048,
+    "recall@10": 0.9071428571428571,
+    "rank1": 15,
+    "top5": 19,
+    "missed": 1,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 46320.55,
+   "jevUsd": 0.012969754000000003,
+   "requests": 6.15,
+   "retriedTasks": 7,
+   "rankMsMedian": 1645.5,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 1,
+     "bm25": 34,
+     "jev": 1
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 2,
+     "jev": 2
+    },
+    {
+     "task": 3,
+     "gold": 1,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 2
+    },
+    {
+     "task": 5,
+     "gold": 1,
+     "bm25": 20,
+     "jev": 1
+    },
+    {
+     "task": 6,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 7,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 8,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 10,
+     "gold": 1,
+     "bm25": 14,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 1,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 12,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 13,
+     "gold": 1,
+     "bm25": 82,
+     "jev": 2
+    },
+    {
+     "task": 14,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 1,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 16,
+     "gold": 1,
+     "bm25": 28,
+     "jev": 3
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 8,
+     "jev": 1
+    },
+    {
+     "task": 18,
+     "gold": 1,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 19,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 1,
+     "bm25": 18,
+     "jev": 1
+    }
+   ]
+  },
+  "50": {
+   "tasks": 20,
+   "ranked": 20,
+   "bm25": {
+    "recall@1": 0.15,
+    "recall@5": 0.45,
+    "recall@10": 0.5773809523809523,
+    "rank1": 3,
+    "top5": 9,
+    "missed": 2,
+    "medianFirstGold": 6.0
+   },
+   "jev": {
+    "recall@1": 0.6898809523809524,
+    "recall@5": 0.8547619047619047,
+    "recall@10": 0.8547619047619047,
+    "rank1": 16,
+    "top5": 18,
+    "missed": 2,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 23525.2,
+   "jevUsd": 0.006587056000000001,
+   "requests": 3.45,
+   "retriedTasks": 6,
+   "rankMsMedian": 1349.0,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 1,
+     "bm25": 29,
+     "jev": 1
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 3,
+     "gold": 1,
+     "bm25": 11,
+     "jev": 2
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 5,
+     "gold": 1,
+     "bm25": 15,
+     "jev": 1
+    },
+    {
+     "task": 6,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 7,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 8,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 10,
+     "gold": 1,
+     "bm25": 9,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 1,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 12,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 13,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 14,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 1,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 16,
+     "gold": 1,
+     "bm25": 28,
+     "jev": 3
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 8,
+     "jev": 1
+    },
+    {
+     "task": 18,
+     "gold": 1,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 19,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 1,
+     "bm25": 15,
+     "jev": 1
+    }
+   ]
+  },
+  "30": {
+   "tasks": 20,
+   "ranked": 20,
+   "bm25": {
+    "recall@1": 0.15,
+    "recall@5": 0.4625,
+    "recall@10": 0.5898809523809524,
+    "rank1": 3,
+    "top5": 10,
+    "missed": 2,
+    "medianFirstGold": 5.0
+   },
+   "jev": {
+    "recall@1": 0.6898809523809524,
+    "recall@5": 0.8422619047619048,
+    "recall@10": 0.8571428571428571,
+    "rank1": 16,
+    "top5": 18,
+    "missed": 2,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 14223.6,
+   "jevUsd": 0.003982608,
+   "requests": 2.45,
+   "retriedTasks": 1,
+   "rankMsMedian": 1103.0,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 1,
+     "bm25": 27,
+     "jev": 1
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 3,
+     "gold": 1,
+     "bm25": 11,
+     "jev": 2
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 5,
+     "gold": 1,
+     "bm25": 13,
+     "jev": 1
+    },
+    {
+     "task": 6,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 7,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 8,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 10,
+     "gold": 1,
+     "bm25": 7,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 1,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 12,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 13,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 14,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 1,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 16,
+     "gold": 1,
+     "bm25": 28,
+     "jev": 4
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 7,
+     "jev": 1
+    },
+    {
+     "task": 18,
+     "gold": 1,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 19,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 1,
+     "bm25": 13,
+     "jev": 1
+    }
+   ]
+  },
+  "20": {
+   "tasks": 20,
+   "ranked": 20,
+   "bm25": {
+    "recall@1": 0.15,
+    "recall@5": 0.4625,
+    "recall@10": 0.6398809523809523,
+    "rank1": 3,
+    "top5": 10,
+    "missed": 4,
+    "medianFirstGold": 5.0
+   },
+   "jev": {
+    "recall@1": 0.5898809523809524,
+    "recall@5": 0.7398809523809524,
+    "recall@10": 0.7523809523809524,
+    "rank1": 14,
+    "top5": 16,
+    "missed": 4,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 9433.65,
+   "jevUsd": 0.002641422,
+   "requests": 1.35,
+   "retriedTasks": 1,
+   "rankMsMedian": 874.5,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 3,
+     "gold": 1,
+     "bm25": 10,
+     "jev": 2
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 2
+    },
+    {
+     "task": 5,
+     "gold": 1,
+     "bm25": 12,
+     "jev": 1
+    },
+    {
+     "task": 6,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 7,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 8,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 10,
+     "gold": 1,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 1,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 12,
+     "gold": 1,
+     "bm25": 2,
+     "jev": 1
+    },
+    {
+     "task": 13,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 14,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 1,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 16,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 18,
+     "gold": 1,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 19,
+     "gold": 1,
+     "bm25": 1,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 1,
+     "bm25": 12,
+     "jev": 1
+    }
+   ]
+  }
+ },
+ "private": {
+  "100": {
+   "tasks": 24,
+   "ranked": 24,
+   "bm25": {
+    "recall@1": 0,
+    "recall@5": 0.020833333333333332,
+    "recall@10": 0.10577876984126984,
+    "rank1": 0,
+    "top5": 1,
+    "missed": 0,
+    "medianFirstGold": 11.0
+   },
+   "jev": {
+    "recall@1": 0.16631314549871717,
+    "recall@5": 0.47947959523503986,
+    "recall@10": 0.6007258436931758,
+    "rank1": 17,
+    "top5": 24,
+    "missed": 0,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 49303.916666666664,
+   "jevUsd": 0.013805096666666667,
+   "requests": 6.458333333333333,
+   "retriedTasks": 9,
+   "rankMsMedian": 1305.0,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 2,
+     "bm25": 56,
+     "jev": 1
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 13,
+     "jev": 1
+    },
+    {
+     "task": 3,
+     "gold": 9,
+     "bm25": 23,
+     "jev": 1
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": 47,
+     "jev": 3
+    },
+    {
+     "task": 5,
+     "gold": 12,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 6,
+     "gold": 29,
+     "bm25": 13,
+     "jev": 1
+    },
+    {
+     "task": 7,
+     "gold": 8,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 8,
+     "gold": 19,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 18,
+     "jev": 2
+    },
+    {
+     "task": 10,
+     "gold": 7,
+     "bm25": 8,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 4,
+     "bm25": 11,
+     "jev": 2
+    },
+    {
+     "task": 12,
+     "gold": 16,
+     "bm25": 9,
+     "jev": 1
+    },
+    {
+     "task": 13,
+     "gold": 7,
+     "bm25": 18,
+     "jev": 1
+    },
+    {
+     "task": 14,
+     "gold": 16,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 11,
+     "bm25": 16,
+     "jev": 1
+    },
+    {
+     "task": 16,
+     "gold": 2,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 12,
+     "jev": 4
+    },
+    {
+     "task": 18,
+     "gold": 3,
+     "bm25": 9,
+     "jev": 1
+    },
+    {
+     "task": 19,
+     "gold": 4,
+     "bm25": 19,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 2,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 21,
+     "gold": 14,
+     "bm25": 12,
+     "jev": 2
+    },
+    {
+     "task": 22,
+     "gold": 1,
+     "bm25": 9,
+     "jev": 3
+    },
+    {
+     "task": 23,
+     "gold": 2,
+     "bm25": 10,
+     "jev": 1
+    },
+    {
+     "task": 24,
+     "gold": 6,
+     "bm25": 11,
+     "jev": 2
+    }
+   ]
+  },
+  "50": {
+   "tasks": 24,
+   "ranked": 24,
+   "bm25": {
+    "recall@1": 0,
+    "recall@5": 0.020833333333333332,
+    "recall@10": 0.26070474317978853,
+    "rank1": 0,
+    "top5": 1,
+    "missed": 1,
+    "medianFirstGold": 6.0
+   },
+   "jev": {
+    "recall@1": 0.1506205048060765,
+    "recall@5": 0.48276926669905346,
+    "recall@10": 0.554242645483004,
+    "rank1": 17,
+    "top5": 23,
+    "missed": 1,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 24802.083333333332,
+   "jevUsd": 0.006944583333333334,
+   "requests": 3.4166666666666665,
+   "retriedTasks": 4,
+   "rankMsMedian": 1033.5,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 2,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 8,
+     "jev": 1
+    },
+    {
+     "task": 3,
+     "gold": 9,
+     "bm25": 18,
+     "jev": 1
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": 42,
+     "jev": 2
+    },
+    {
+     "task": 5,
+     "gold": 12,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 6,
+     "gold": 29,
+     "bm25": 8,
+     "jev": 1
+    },
+    {
+     "task": 7,
+     "gold": 8,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 8,
+     "gold": 19,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 13,
+     "jev": 2
+    },
+    {
+     "task": 10,
+     "gold": 7,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 4,
+     "bm25": 6,
+     "jev": 2
+    },
+    {
+     "task": 12,
+     "gold": 16,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 13,
+     "gold": 7,
+     "bm25": 13,
+     "jev": 1
+    },
+    {
+     "task": 14,
+     "gold": 16,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 11,
+     "bm25": 11,
+     "jev": 2
+    },
+    {
+     "task": 16,
+     "gold": 2,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 7,
+     "jev": 1
+    },
+    {
+     "task": 18,
+     "gold": 3,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 19,
+     "gold": 4,
+     "bm25": 14,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 2,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 21,
+     "gold": 14,
+     "bm25": 7,
+     "jev": 2
+    },
+    {
+     "task": 22,
+     "gold": 1,
+     "bm25": 6,
+     "jev": 2
+    },
+    {
+     "task": 23,
+     "gold": 2,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 24,
+     "gold": 6,
+     "bm25": 6,
+     "jev": 1
+    }
+   ]
+  },
+  "30": {
+   "tasks": 24,
+   "ranked": 24,
+   "bm25": {
+    "recall@1": 0,
+    "recall@5": 0.18630560776942356,
+    "recall@10": 0.2969263340888795,
+    "rank1": 0,
+    "top5": 15,
+    "missed": 2,
+    "medianFirstGold": 4.0
+   },
+   "jev": {
+    "recall@1": 0.11180602067909237,
+    "recall@5": 0.44732077658007785,
+    "recall@10": 0.49291091031959905,
+    "rank1": 14,
+    "top5": 22,
+    "missed": 2,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 15106.5,
+   "jevUsd": 0.0042298200000000005,
+   "requests": 2.375,
+   "retriedTasks": 2,
+   "rankMsMedian": 950.0,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 2,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 6,
+     "jev": 2
+    },
+    {
+     "task": 3,
+     "gold": 9,
+     "bm25": 16,
+     "jev": 1
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 5,
+     "gold": 12,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 6,
+     "gold": 29,
+     "bm25": 6,
+     "jev": 1
+    },
+    {
+     "task": 7,
+     "gold": 8,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 8,
+     "gold": 19,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 11,
+     "jev": 2
+    },
+    {
+     "task": 10,
+     "gold": 7,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 4,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 12,
+     "gold": 16,
+     "bm25": 4,
+     "jev": 3
+    },
+    {
+     "task": 13,
+     "gold": 7,
+     "bm25": 11,
+     "jev": 5
+    },
+    {
+     "task": 14,
+     "gold": 16,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 11,
+     "bm25": 9,
+     "jev": 3
+    },
+    {
+     "task": 16,
+     "gold": 2,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 5,
+     "jev": 3
+    },
+    {
+     "task": 18,
+     "gold": 3,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 19,
+     "gold": 4,
+     "bm25": 12,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 2,
+     "bm25": 4,
+     "jev": 2
+    },
+    {
+     "task": 21,
+     "gold": 14,
+     "bm25": 5,
+     "jev": 1
+    },
+    {
+     "task": 22,
+     "gold": 1,
+     "bm25": 4,
+     "jev": 2
+    },
+    {
+     "task": 23,
+     "gold": 2,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 24,
+     "gold": 6,
+     "bm25": 4,
+     "jev": 1
+    }
+   ]
+  },
+  "20": {
+   "tasks": 24,
+   "ranked": 24,
+   "bm25": {
+    "recall@1": 0,
+    "recall@5": 0.23755441945380693,
+    "recall@10": 0.3132953817079271,
+    "rank1": 0,
+    "top5": 17,
+    "missed": 2,
+    "medianFirstGold": 3.0
+   },
+   "jev": {
+    "recall@1": 0.12370572896888686,
+    "recall@5": 0.38002162919926075,
+    "recall@10": 0.40244928598490304,
+    "rank1": 14,
+    "top5": 20,
+    "missed": 2,
+    "medianFirstGold": 1.0
+   },
+   "jevInputTokens": 10437.875,
+   "jevUsd": 0.0029226050000000004,
+   "requests": 1.9166666666666667,
+   "retriedTasks": 3,
+   "rankMsMedian": 888.0,
+   "perTask": [
+    {
+     "task": 1,
+     "gold": 2,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 2,
+     "gold": 2,
+     "bm25": 5,
+     "jev": 1
+    },
+    {
+     "task": 3,
+     "gold": 9,
+     "bm25": 15,
+     "jev": 1
+    },
+    {
+     "task": 4,
+     "gold": 1,
+     "bm25": null,
+     "jev": null
+    },
+    {
+     "task": 5,
+     "gold": 12,
+     "bm25": 3,
+     "jev": 3
+    },
+    {
+     "task": 6,
+     "gold": 29,
+     "bm25": 5,
+     "jev": 7
+    },
+    {
+     "task": 7,
+     "gold": 8,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 8,
+     "gold": 19,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 9,
+     "gold": 4,
+     "bm25": 10,
+     "jev": 1
+    },
+    {
+     "task": 10,
+     "gold": 7,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 11,
+     "gold": 4,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 12,
+     "gold": 16,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 13,
+     "gold": 7,
+     "bm25": 10,
+     "jev": 3
+    },
+    {
+     "task": 14,
+     "gold": 16,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 15,
+     "gold": 11,
+     "bm25": 8,
+     "jev": 1
+    },
+    {
+     "task": 16,
+     "gold": 2,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 17,
+     "gold": 21,
+     "bm25": 4,
+     "jev": 6
+    },
+    {
+     "task": 18,
+     "gold": 3,
+     "bm25": 3,
+     "jev": 2
+    },
+    {
+     "task": 19,
+     "gold": 4,
+     "bm25": 11,
+     "jev": 1
+    },
+    {
+     "task": 20,
+     "gold": 2,
+     "bm25": 3,
+     "jev": 2
+    },
+    {
+     "task": 21,
+     "gold": 14,
+     "bm25": 4,
+     "jev": 1
+    },
+    {
+     "task": 22,
+     "gold": 1,
+     "bm25": 3,
+     "jev": 2
+    },
+    {
+     "task": 23,
+     "gold": 2,
+     "bm25": 3,
+     "jev": 1
+    },
+    {
+     "task": 24,
+     "gold": 6,
+     "bm25": 3,
+     "jev": 3
+    }
+   ]
+  }
+ }
+}

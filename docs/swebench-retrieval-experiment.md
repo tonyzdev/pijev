@@ -20,7 +20,7 @@ relevance has ground truth.
 - **Ground truth**: the files edited by the instance's reference patch. Tests are left in
   the candidate pool; nothing is filtered by path.
 - **Baseline**: Okapi BM25 (k1=1.2, b=0.75) over file contents, query = the issue text.
-- **Candidate stage**: BM25 top-100.
+- **Candidate stage**: BM25 top-100. (PiJev now ships 50: the [shortlist ablation](shortlist-and-private-repo.md) shows it keeps every rank-1 result at half the Jev cost.)
 - **Rerank stage**: Jev scores each candidate with one `noul` question — "does this file
   need to be read or edited to resolve the task?" Files are sent as compact outlines
   (path, imports, top-level defs/classes, query-matching lines; ≤1,800 bytes each), because
