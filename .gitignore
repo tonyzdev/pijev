@@ -9,3 +9,8 @@ dist/
 *.tgz
 coverage/
 .DS_Store
+
+# Private-repository task data and local config never enter the tree
+eval/private-repo/instances.json
+eval/private-repo/.local.json
+eval/private-repo/*.log
