@@ -44,13 +44,17 @@ Five controlled experiments: 20 retrieval sweeps and 232 agent runs on two task 
 
 | | SWE-bench Verified django · 20 tasks · v4-flash | unfamiliar repositories · 13 tasks · v4-flash | unfamiliar repositories · 13 tasks · v4-pro |
 |---|---:|---:|---:|
-| first tool call opens a file the patch edits | 5/20 → **10/20** | 0/13 → **7/13** | 0/13 → **7/13** |
-| median call that reaches such a file | 2 → **1** | 4 → **1** | 3 → **1** |
+| **tool calls per task** (tasks with fewer · sign test) | −16% (15 of 20 · p = 0.02) | −18% (11 of 13 · p = 0.02) | **−25%** (12 of 13 · p = 0.003) |
 | search calls per task | 4.6 → **3.5** (−24%) | 10.3 → **7.0** (−32%) | 8.5 → **5.2** (−39%) |
-| tool calls per task (tasks with fewer) | −16% (15/20) | −18% (11/13) | **−25%** (12/13) |
+| median call that reaches a file the patch edits | 2 → **1** | 4 → **1** | 3 → **1** |
+| first tool call opens such a file ¹ | 5/20 → **10/20** | 0/13 → **7/13** | 0/13 → **7/13** |
 | prompt tokens per task | 192k → 178k | 371k → 372k | 424k → **329k** (−22%) |
 | calls from finding the file to the first edit | — | 11.2 → 8.7 | 11.9 → **5.4** |
 | resolved (Pi vs PiJev + Jev) | 15/20 vs 14/20 | 4/13 vs 4/13 | 4/13 vs 4/13 |
+
+**Pooled over all 46 paired tasks, PiJev + Jev made fewer tool calls on 38 and more on 7 — an exact sign test gives p = 3 × 10⁻⁶ — and total tool calls fell 20% (95% bootstrap CI 11–28%).** One run per task is too few to rank outcomes, but it is plenty for this. (`eval/figures/paired-stats.py` → `eval/swebench-agent-results/paired-stats.json`)
+
+¹ Partly by construction: the briefing names the file, so a first call that opens it shows the model trusted the briefing. The tool-call count is the measure that does not depend on that.
 
 ![Every tool call of Pi and PiJev + Jev on 13 tasks in unfamiliar repositories](docs/figures/execution-strips-unfamiliar-pro.png)
 
@@ -75,7 +79,7 @@ Five controlled experiments: 20 retrieval sweeps and 232 agent runs on two task 
 - **Resolve rate.** 4 vs 4 on the unfamiliar set under both models, 15 vs 14 on django — noise at one run per task. Eight of the thirteen unfamiliar tasks are solved by no arm: they fail in the fix, not in finding the file. Jev shortens the path, not the outcome.
 - **Cost at DeepSeek prices.** Jev's ranking is $0.011–0.014 per task, three to four times the main model, and the main-model tokens it saves are worth less than that. The ledger turns positive with a main model whose tokens cost enough — a Sonnet-class model at $0.5–1.3 per task is in that regime, DeepSeek is not. ([frontier and cost ledger](docs/unfamiliar-repo-experiment.md#the-frontier-drawn-honestly))
 - **Wall time.** Flat on the unfamiliar set (Jev adds 3.6 s per task under pro), slower on django (42 → 55 s).
-- **Scale of evidence.** 33 tasks, one run per configuration. Effort metrics are stable enough to compare; outcome differences of one task are not.
+- **Scale of evidence.** 33 tasks, one run per configuration: enough for the effort metrics (significant, above), not for outcome differences of one task.
 
 ![Every tool call of Pi and PiJev + Jev on 20 SWE-bench Verified django tasks](docs/figures/execution-strips-django.png)
 
@@ -177,7 +181,7 @@ Pi project resources in `.pi/` and `AGENTS.md` remain supported. PiJev retains P
 
 In `assist` and `observe`, task text, candidate skill instructions, retrieved source excerpts, and failed tool output may be sent to TypeSafe, through Vercel when selected. Gateway evaluation requests set `zeroDataRetention: true`. Normal coding-model context follows that provider's configuration separately.
 
-- Jev requests have a total deadline, cancellation, strict response validation, size limits, and no client retries. Successful answers are cached in memory for five minutes; repeated service failures trigger a short cooldown.
+- Jev requests have a total deadline, cancellation, strict response validation, size limits, and no retry loops: a ranking batch the gateway refuses with a 5xx is retried once, nothing else is retried. Successful answers are cached in memory for five minutes; repeated service failures trigger a short cooldown.
 - Local decision logs contain mode, stage, latency, token use, fallback reason, and the actual Pi session/user-message entry IDs. These IDs link a decision to its user prompt across model/tool rounds; old records without IDs remain readable. They exclude prompts, answers, source, and tool output. **Pi session transcripts separately retain normal conversation and tool content.**
 - `pijev_search` respects ignore files and excludes hidden files, common credential files, dependencies, and build output. It retrieves a bounded shortlist and reports truncation. These filters do not detect secrets embedded in source code.
 - Omit `patterns` in `pijev_search` to discover source windows from a natural-language question. Discovery reads at most 1,000 eligible files, 256 KiB per file and 4 MiB total, then offers at most 32 excerpts for ranking. Files beyond the enumeration budget are not searched.

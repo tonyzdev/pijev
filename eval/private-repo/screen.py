@@ -1,5 +1,5 @@
 """Screen a private repository's PRs into SWE-bench-style instances with a `node --test` oracle.
-For each PR: checkout base (git archive), install its dependency tree offline from the local pnpm store, apply the
+For each PR: checkout base (git archive), install the merge commit's dependency tree offline from the local pnpm store (source stays at base), apply the
 test patch and run the PR's test files (expect failures), then apply the code patch too (expect passes).
 Keep PRs whose oracle discriminates in this environment. Usage: screen.py [PR numbers...] (given numbers run serially)"""
 import json, os, re, subprocess, sys, time, shutil
@@ -21,6 +21,12 @@ def sh(cmd, cwd=None, timeout=300, env=None, shell=False):
     except subprocess.TimeoutExpired as e:
         d = lambda x: x.decode("utf-8", "replace") if isinstance(x, bytes) else (x or "")
         return 124, d(e.stdout) + d(e.stderr) + "\nTIMEOUT"
+def install_cmd(repo, base, merge):
+    """Dependencies from the merge commit (the environment the reference fix runs in, as SWE-bench builds it);
+    source stays at base: changed manifests are swapped in for the install, then restored."""
+    return (f'set -e; M=$(git -C "{repo}" diff --name-only {base} {merge} -- package.json "**/package.json" pnpm-lock.yaml pnpm-workspace.yaml); '
+            f'for f in $M; do mkdir -p "$(dirname "$f")"; git -C "{repo}" show {merge}:"$f" > "$f" 2>/dev/null || rm -f "$f"; done; '
+            'npx -y pnpm@11.5.2 install --frozen-lockfile --offline; git checkout -q -- .; git clean -qfd')
 def parse_tap(tap, file):
     """Node's TAP: '# Subtest: name' opens a block; 'ok N - name' closes it at the same indent. Ids are file::a > b."""
     st = {}; names = []
@@ -47,7 +53,7 @@ def screen(p):
         if code: rec["why"] = "archive: " + out[-200:]; return rec
         sh(["git", "init", "-q"], cwd=work); open(f"{work}/.git/info/exclude", "w").write("node_modules\n.home/\n.tmp/\n")
         sh(["git", "-c", "user.name=e", "-c", "user.email=e@e", "add", "-A"], cwd=work); sh(["git", "-c", "user.name=e", "-c", "user.email=e@e", "commit", "-qm", "base"], cwd=work)
-        code, out = sh(["npx", "-y", "pnpm@11.5.2", "install", "--frozen-lockfile", "--offline"], cwd=work, timeout=600)
+        code, out = sh(install_cmd(REPO, p["base"], p["merge"]), cwd=work, timeout=600, shell=True)
         if code: rec["why"] = "install: " + out[-300:]; return rec
         open(f"{work}.test.patch", "w").write(p["test_patch"]); open(f"{work}.gold.patch", "w").write(p["patch"])
         code, out = sh(["git", "apply", f"{work}.test.patch"], cwd=work)
