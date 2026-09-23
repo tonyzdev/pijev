@@ -14,3 +14,4 @@ coverage/
 eval/private-repo/instances.json
 eval/private-repo/.local.json
 eval/private-repo/*.log
+__pycache__/

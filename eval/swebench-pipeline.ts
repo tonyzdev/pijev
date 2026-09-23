@@ -16,14 +16,19 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const { values } = parseArgs({ options: {
     sample: { type: "string", default: "sample.json" }, repos: { type: "string", default: "repos" },
     out: { type: "string", default: "swebench-pipeline-results" },
+    shortlist: { type: "string", default: "100", description: "BM25 candidates Jev scores (the briefing's cost scales with it)" },
   } });
-  const sample = JSON.parse(await readFile(values.sample!, "utf8")) as { repo: string; instance_id: string; base_commit: string; problem_statement: string; patch: string; difficulty: string }[];
+  const shortlist = Number(values.shortlist);
+  if (!Number.isSafeInteger(shortlist) || shortlist < 1) throw new Error("--shortlist must be a positive integer");
+  // `gold` (or `gold_files`) overrides the files parsed from `patch`, for tasks whose patch also
+  // touches docs or generated files that are not what a developer has to find.
+  const sample = JSON.parse(await readFile(values.sample!, "utf8")) as { repo: string; instance_id: string; base_commit: string; problem_statement: string; patch?: string; gold?: string[]; gold_files?: string[]; difficulty?: string }[];
   const client = new JevClient({ ...loadConfig({ ...process.env, PIJEV_JEV_PROVIDER: "vercel" }), timeoutMs: 30_000 });
   await mkdir(values.out!, { recursive: true });
   const records = [];
   for (const inst of sample) {
     const repo = join(values.repos!, inst.repo.split("/")[1]!);
-    const gold = goldFiles(inst.patch);
+    const gold = inst.gold ?? inst.gold_files ?? goldFiles(inst.patch ?? "");
     await exec("git", ["checkout", "-q", "--force", inst.base_commit], { cwd: repo });
     const query = inst.problem_statement.slice(0, 2000);
     const decisions: { status: string; inputTokens: number; outputTokens: number; latencyMs: number }[] = [];
@@ -32,14 +37,23 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         inputTokens: result.status === "ok" ? result.inputTokens : 0, outputTokens: result.status === "ok" ? result.outputTokens : 0, latencyMs: result.latencyMs });
     });
     const t0 = performance.now();
-    const found = await discoverCode({ cwd: repo, query });
+    const found = await discoverCode({ cwd: repo, query, shortlist });
     const discoverMs = Math.round(performance.now() - t0);
     const pool = found.candidates.map(c => c.path);
-    const t1 = performance.now();
-    const ranked = await engine.rankCode(query, found.candidates, undefined, "source_briefing");
-    const rankMs = Math.round(performance.now() - t1);
+    // A ranking that fell back (gateway 5xx, cooldown, timeout) would be recorded as BM25's order and
+    // silently count as "Jev did no better". Retry it; a record that never ranks is marked, not averaged.
+    let ranked = found.candidates, applied = false, attempts = 0, rankMs = 0;
+    while (!applied && attempts < 6) {
+      // past the client's 30 s cooldown; successful batches are served from its cache on the next attempt
+      if (attempts) await new Promise(res => setTimeout(res, 31_000 + 15_000 * attempts));
+      attempts++;
+      decisions.length = 0;
+      const t1 = performance.now();
+      ranked = await engine.rankCode(query, found.candidates, undefined, "source_briefing");
+      rankMs = Math.round(performance.now() - t1);
+      applied = ranked.some(c => c.relevance !== undefined);
+    }
     const order = ranked.map(c => c.path);
-    const applied = ranked.some(c => c.relevance !== undefined);
     // What reaching the gold file would cost a model that reads down the ranking
     // itself: one tool call per file, and that file's text in its context.
     const bytes = new Map<string, number>();
@@ -53,13 +67,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     };
     const ks = [1, 5, 10, 20, 100];
     const rec = {
-      instance_id: inst.instance_id, repo: inst.repo, difficulty: inst.difficulty, gold,
+      instance_id: inst.instance_id, repo: inst.repo, difficulty: inst.difficulty ?? null, gold,
       filesScanned: found.filesScanned, shortlist: pool.length, truncated: found.truncated,
       goldInShortlist: gold.filter(g => pool.includes(g)).length,
       bm25: { recall: Object.fromEntries(ks.map(k => [k, recallAt(pool, gold, k)])), firstGoldRank: firstGoldRank(pool, gold) },
       jev: { applied, recall: Object.fromEntries(ks.map(k => [k, recallAt(order, gold, k)])), firstGoldRank: firstGoldRank(order, gold) },
       readCost: { bm25: readCost(pool), jev: readCost(order) },
-      decisions, discoverMs, rankMs, topBm25: pool.slice(0, 10), topJev: order.slice(0, 10),
+      decisions, attempts, discoverMs, rankMs, topBm25: pool.slice(0, 10), topJev: order.slice(0, 10),
       ranking: order.map((path, i) => ({ path, jevRank: i + 1, bm25Rank: pool.indexOf(path) + 1, bytes: bytes.get(path) ?? 0, gold: gold.includes(path) })),
     };
     records.push(rec);
@@ -67,6 +81,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       + ` | bm25 r@10=${rec.bm25.recall[10]!.toFixed(2)} rank=${rec.bm25.firstGoldRank ?? "-"}`
       + ` | jev r@10=${rec.jev.recall[10]!.toFixed(2)} rank=${rec.jev.firstGoldRank ?? "-"}`
       + ` | ${decisions.length}req ${discoverMs}+${rankMs}ms`);
-    await writeFile(join(values.out!, "results.json"), JSON.stringify({ pipeline: "pijev", records }, null, 1));
+    await writeFile(join(values.out!, "results.json"), JSON.stringify({ pipeline: "pijev", shortlist, records }, null, 1));
   }
 }

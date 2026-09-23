@@ -126,13 +126,15 @@ for (const provider of ["typesafe", "vercel"] satisfies JevProvider[]) {
     await off.session.prompt(query);
     await failed.session.prompt(query);
     assert.deepEqual(failed.searchResult(), off.searchResult());
-    assert.equal(failed.requests.length, 1, "A failed ranking must not retry");
+    assert.equal(failed.requests.length, 2, "A ranking the gateway refuses with a 5xx is retried exactly once");
     assert.equal(failed.modelCalls(), 2, "Pi must continue with the returned source evidence");
     const records = await readRecentDecisions(failed.home);
-    assert.equal(records.length, 1);
-    assert.equal(records[0]!.kind, "code_rank");
-    assert.equal(records[0]!.status, "fallback");
-    assert.equal(records[0]!.reason, "http_503");
+    assert.equal(records.length, 2, "both attempts are journaled");
+    for (const record of records) {
+      assert.equal(record.kind, "code_rank");
+      assert.equal(record.status, "fallback");
+      assert.equal(record.reason, "http_503");
+    }
   });
 }
 

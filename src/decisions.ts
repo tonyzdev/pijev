@@ -6,7 +6,9 @@ export interface SkillCandidate { name: string; description: string; filePath: s
 export type DecisionKind = "skill_shortlist" | "skill_verify" | "code_rank" | "source_briefing" | "failure_triage";
 export interface DecisionObservation { kind: DecisionKind; result: JevResult; questionCount: number }
 // Stays under JevClient's 90 KB transport bound with room for model and framing.
-const MAX_REQUEST_BYTES = 70_000;
+// Jev's gateway rejects a growing share of requests as they approach ~70 KB (measured 2026-09-23:
+// about 1 in 4 at 40 KB, nearly all at 65 KB). Smaller batches fail less, and they run concurrently.
+const MAX_REQUEST_BYTES = 32_000;
 
 const failureCriteria = {
   code: "A compiler, type, assertion, or application logic error is reported.",
@@ -91,11 +93,16 @@ export class DecisionEngine {
     }
     if (group.length) groups.push(group);
     const relevance = new Map<string, number>();
-    for (const batch of groups) {
-      if (signal?.aborted) return candidates;
+    // Batches are independent questions, so they run concurrently. A batch the gateway refuses with a
+    // 5xx was not served and is retried once; timeouts, cancellations and invalid answers are not.
+    const results = await Promise.all(groups.map(async (batch) => {
       const { state, questions } = payload(batch);
-      const result = await this.evaluate(kind, state, questions, signal);
-      if (result.status !== "ok") return candidates;
+      let result = await this.evaluate(kind, state, questions, signal);
+      if (result.status !== "ok" && /^http_5\d\d$/.test(result.reason) && !signal?.aborted) result = await this.evaluate(kind, state, questions, signal);
+      return { batch, result };
+    }));
+    for (const { batch, result } of results) {
+      if (signal?.aborted || result.status !== "ok") return candidates;
       for (const candidate of batch) {
         const answer = result.answers[candidate.id];
         if (answer?.type !== "noul") return candidates;
